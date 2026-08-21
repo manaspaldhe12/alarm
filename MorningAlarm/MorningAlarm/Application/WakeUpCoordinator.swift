@@ -15,8 +15,9 @@ final class WakeUpCoordinator {
     private let missionCoordinator: MissionCoordinator
     private let stateStore: WakeUpCheckStateStore
 
-    /// checkAlarmID -> original alarm ID
-    private var pendingCheckIDs: [UUID: UUID] = [:]
+    /// checkAlarmID -> original alarm ID. Internal (not private) get so
+    /// `@testable import` can assert on it directly.
+    private(set) var pendingCheckIDs: [UUID: UUID] = [:]
     private var pollingTask: Task<Void, Never>?
 
     init(scheduler: AlarmScheduler, missionCoordinator: MissionCoordinator, stateStore: WakeUpCheckStateStore) {
@@ -84,7 +85,9 @@ final class WakeUpCoordinator {
         activeAlarmID = nil
     }
 
-    private func poll() async {
+    /// Internal (not private) so tests can drive one poll cycle directly
+    /// instead of waiting on the real 1-second loop.
+    func poll() async {
         guard activeAlarmID == nil, !pendingCheckIDs.isEmpty else { return }
 
         let alertingIDs = await scheduler.alertingAlarmIDs()

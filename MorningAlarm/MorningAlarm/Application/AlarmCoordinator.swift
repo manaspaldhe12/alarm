@@ -34,7 +34,8 @@ final class AlarmCoordinator {
     let appLauncher: ExternalAppLauncher
 
     private var observationTask: Task<Void, Never>?
-    private var snoozeCounts: [UUID: Int] = [:]
+    /// Internal (not private) get so `@testable import` can assert on it.
+    private(set) var snoozeCounts: [UUID: Int] = [:]
 
     init(
         repository: AlarmRepository,
@@ -144,7 +145,13 @@ final class AlarmCoordinator {
 
     func presentRingingAlarm(_ alarmID: UUID) async {
         guard alarms.contains(where: { $0.id == alarmID }) else { return }
-        snoozeCounts[alarmID] = 0
+        // Only reset the snooze count on a genuinely fresh cycle (coming from
+        // .idle). A post-snooze re-ring arrives from .snoozed — resetting
+        // there too would silently defeat maxSnoozes, since every re-ring
+        // would zero the count right back out.
+        if case .idle = runtimeState {
+            snoozeCounts[alarmID] = 0
+        }
         runtimeState = .ringing(alarmID: alarmID)
 
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
@@ -327,7 +334,9 @@ final class AlarmCoordinator {
         }
     }
 
-    private func syncAlertingAlarms() async {
+    /// Internal (not private) so tests can drive one sync cycle directly
+    /// instead of waiting on the real 1-second loop.
+    func syncAlertingAlarms() async {
         let knownAlarmIDs = Set(alarms.map(\.id))
 
         let alertingIDs = await scheduler.alertingAlarmIDs()

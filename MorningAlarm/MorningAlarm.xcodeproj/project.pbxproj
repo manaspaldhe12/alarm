@@ -7,93 +7,111 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B10000000000000000000001 /* MorningAlarmApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* MorningAlarmApp.swift */; };
-		B10000000000000000000002 /* AppDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* AppDependencyContainer.swift */; };
-		B10000000000000000000003 /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* Alarm.swift */; };
-		B10000000000000000000004 /* LocalTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000004 /* LocalTime.swift */; };
-		B10000000000000000000005 /* AlarmSoundConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* AlarmSoundConfiguration.swift */; };
-		B10000000000000000000006 /* SnoozeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000006 /* SnoozeConfiguration.swift */; };
-		B10000000000000000000007 /* AlarmRuntimeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000007 /* AlarmRuntimeState.swift */; };
-		B10000000000000000000008 /* AlarmCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000008 /* AlarmCoordinator.swift */; };
-		B10000000000000000000009 /* AlarmRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000009 /* AlarmRepository.swift */; };
-		B1000000000000000000000A /* FileAlarmRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000A /* FileAlarmRepository.swift */; };
-		B1000000000000000000000B /* AlarmScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000B /* AlarmScheduler.swift */; };
-		B1000000000000000000000C /* AlarmKitScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000C /* AlarmKitScheduler.swift */; };
-		B1000000000000000000000D /* LocalAlarmAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000D /* LocalAlarmAudioPlayer.swift */; };
-		B1000000000000000000000E /* AlarmListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000E /* AlarmListView.swift */; };
-		B1000000000000000000000F /* AlarmEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1000000000000000000000F /* AlarmEditorView.swift */; };
-		B10000000000000000000010 /* AlarmRingingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000010 /* AlarmRingingView.swift */; };
-		B10000000000000000000011 /* OpenAlarmIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000011 /* OpenAlarmIntent.swift */; };
-		B10000000000000000000012 /* default_alarm.wav in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000012 /* default_alarm.wav */; };
-		B10000000000000000000013 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000013 /* Assets.xcassets */; };
-		B10000000000000000000014 /* MorningAlarmWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* MorningAlarmWidgets.swift */; };
-		B10000000000000000000015 /* MorningAlarmWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* MorningAlarmWidgetsBundle.swift */; };
-		B10000000000000000000016 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = P10000000000000000000002 /* MorningAlarmWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B10000000000000000000017 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* MorningAlarmMetadata.swift */; };
-		B10000000000000000000018 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* MorningAlarmMetadata.swift */; };
-		B10000000000000000000019 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* Weekday.swift */; };
-		B10000000000000000000020 /* Recurrence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* Recurrence.swift */; };
-		B10000000000000000000021 /* MissionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* MissionType.swift */; };
-		B10000000000000000000022 /* MissionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* MissionConfiguration.swift */; };
-		B10000000000000000000023 /* MissionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* MissionResult.swift */; };
-		B10000000000000000000024 /* MissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* MissionRunner.swift */; };
-		B10000000000000000000025 /* MissionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* MissionSession.swift */; };
-		B10000000000000000000026 /* StepValidationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* StepValidationEngine.swift */; };
-		B10000000000000000000027 /* StepMissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000028 /* StepMissionRunner.swift */; };
-		B10000000000000000000028 /* MissionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000029 /* MissionCoordinator.swift */; };
-		B10000000000000000000029 /* StepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000030 /* StepCounter.swift */; };
-		B10000000000000000000030 /* PedometerStepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* PedometerStepCounter.swift */; };
-		B10000000000000000000031 /* MissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* MissionView.swift */; };
-		B10000000000000000000032 /* QRCodeRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000033 /* QRCodeRegistration.swift */; };
-		B10000000000000000000033 /* QRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000034 /* QRCodeRepository.swift */; };
-		B10000000000000000000034 /* FileQRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000035 /* FileQRCodeRepository.swift */; };
-		B10000000000000000000035 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000036 /* QRScannerView.swift */; };
-		B10000000000000000000036 /* QRMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000037 /* QRMissionContentView.swift */; };
-		B10000000000000000000037 /* QRSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000038 /* QRSetupView.swift */; };
-		B10000000000000000000038 /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000039 /* ChessPiece.swift */; };
-		B10000000000000000000039 /* ChessSquare.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000040 /* ChessSquare.swift */; };
-		B10000000000000000000040 /* ChessMove.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* ChessMove.swift */; };
-		B10000000000000000000041 /* ChessBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* ChessBoard.swift */; };
-		B10000000000000000000042 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* Puzzle.swift */; };
-		B10000000000000000000043 /* ChessEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* ChessEngine.swift */; };
-		B10000000000000000000044 /* PuzzleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* PuzzleRepository.swift */; };
-		B10000000000000000000045 /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ChessBoardView.swift */; };
-		B10000000000000000000046 /* ChessMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* ChessMissionContentView.swift */; };
-		B10000000000000000000047 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* Quote.swift */; };
-		B10000000000000000000048 /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000049 /* QuoteRepository.swift */; };
-		B10000000000000000000049 /* QuoteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000050 /* QuoteCoordinator.swift */; };
-		B10000000000000000000050 /* PostAlarmAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000051 /* PostAlarmAction.swift */; };
-		B10000000000000000000051 /* ExternalAppLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000052 /* ExternalAppLauncher.swift */; };
-		B10000000000000000000052 /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000053 /* quotes.json */; };
-		B10000000000000000000053 /* WakeUpCheckConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000054 /* WakeUpCheckConfiguration.swift */; };
-		B10000000000000000000054 /* GentleWakeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000055 /* GentleWakeConfiguration.swift */; };
-		B10000000000000000000055 /* WakeUpCheckStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000056 /* WakeUpCheckStateStore.swift */; };
-		B10000000000000000000056 /* WakeUpCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000057 /* WakeUpCoordinator.swift */; };
-		B10000000000000000000057 /* SnoozedConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* SnoozedConfirmationView.swift */; };
-		B10000000000000000000058 /* MorningCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* MorningCompleteView.swift */; };
-		B10000000000000000000059 /* WakeUpCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* WakeUpCheckView.swift */; };
-		B10000000000000000000060 /* MissionConfigurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MissionConfigurationPicker.swift */; };
-		B10000000000000000000061 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* puzzles.json */; };
+		BLF0000000000000000000001 /* AppDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000001 /* AppDependencyContainer.swift */; };
+		BLF0000000000000000000002 /* MorningAlarmApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000002 /* MorningAlarmApp.swift */; };
+		BLF0000000000000000000003 /* AlarmCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000003 /* AlarmCoordinator.swift */; };
+		BLF0000000000000000000004 /* MissionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000004 /* MissionCoordinator.swift */; };
+		BLF0000000000000000000005 /* QuoteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000005 /* QuoteCoordinator.swift */; };
+		BLF0000000000000000000006 /* WakeUpCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000006 /* WakeUpCoordinator.swift */; };
+		BLF0000000000000000000007 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000007 /* Assets.xcassets */; };
+		BLF0000000000000000000008 /* Alarm.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000008 /* Alarm.swift */; };
+		BLF0000000000000000000009 /* AlarmRuntimeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000009 /* AlarmRuntimeState.swift */; };
+		BLF0000000000000000000010 /* AlarmSoundConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000010 /* AlarmSoundConfiguration.swift */; };
+		BLF0000000000000000000011 /* GentleWakeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000011 /* GentleWakeConfiguration.swift */; };
+		BLF0000000000000000000012 /* LocalTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000012 /* LocalTime.swift */; };
+		BLF0000000000000000000013 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000013 /* MorningAlarmMetadata.swift */; };
+		BLF0000000000000000000014 /* PostAlarmAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000014 /* PostAlarmAction.swift */; };
+		BLF0000000000000000000015 /* Recurrence.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000015 /* Recurrence.swift */; };
+		BLF0000000000000000000016 /* SnoozeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000016 /* SnoozeConfiguration.swift */; };
+		BLF0000000000000000000017 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000017 /* Weekday.swift */; };
+		BLF0000000000000000000018 /* ChessBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000018 /* ChessBoard.swift */; };
+		BLF0000000000000000000019 /* ChessMove.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000019 /* ChessMove.swift */; };
+		BLF0000000000000000000020 /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000020 /* ChessPiece.swift */; };
+		BLF0000000000000000000021 /* ChessSquare.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000021 /* ChessSquare.swift */; };
+		BLF0000000000000000000022 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000022 /* Puzzle.swift */; };
+		BLF0000000000000000000023 /* MissionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000023 /* MissionConfiguration.swift */; };
+		BLF0000000000000000000024 /* MissionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000024 /* MissionResult.swift */; };
+		BLF0000000000000000000025 /* MissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000025 /* MissionRunner.swift */; };
+		BLF0000000000000000000026 /* MissionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000026 /* MissionSession.swift */; };
+		BLF0000000000000000000027 /* MissionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000027 /* MissionType.swift */; };
+		BLF0000000000000000000028 /* StepMissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000028 /* StepMissionRunner.swift */; };
+		BLF0000000000000000000029 /* StepValidationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000029 /* StepValidationEngine.swift */; };
+		BLF0000000000000000000030 /* QRCodeRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000030 /* QRCodeRegistration.swift */; };
+		BLF0000000000000000000031 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000031 /* Quote.swift */; };
+		BLF0000000000000000000032 /* WakeUpCheckConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000032 /* WakeUpCheckConfiguration.swift */; };
+		BLF0000000000000000000033 /* AlarmEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000033 /* AlarmEditorView.swift */; };
+		BLF0000000000000000000034 /* MissionConfigurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000034 /* MissionConfigurationPicker.swift */; };
+		BLF0000000000000000000035 /* AlarmRingingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000035 /* AlarmRingingView.swift */; };
+		BLF0000000000000000000036 /* SnoozedConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000036 /* SnoozedConfirmationView.swift */; };
+		BLF0000000000000000000037 /* AlarmListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000037 /* AlarmListView.swift */; };
+		BLF0000000000000000000038 /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000038 /* ChessBoardView.swift */; };
+		BLF0000000000000000000039 /* ChessMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000039 /* ChessMissionContentView.swift */; };
+		BLF0000000000000000000040 /* MissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000040 /* MissionView.swift */; };
+		BLF0000000000000000000041 /* QRMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000041 /* QRMissionContentView.swift */; };
+		BLF0000000000000000000042 /* MorningCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000042 /* MorningCompleteView.swift */; };
+		BLF0000000000000000000043 /* QRSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000043 /* QRSetupView.swift */; };
+		BLF0000000000000000000044 /* WakeUpCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000044 /* WakeUpCheckView.swift */; };
+		BLF0000000000000000000045 /* AlarmKitScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000046 /* AlarmKitScheduler.swift */; };
+		BLF0000000000000000000046 /* AlarmScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000047 /* AlarmScheduler.swift */; };
+		BLF0000000000000000000047 /* LocalAlarmAudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000048 /* LocalAlarmAudioPlayer.swift */; };
+		BLF0000000000000000000048 /* ChessEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000049 /* ChessEngine.swift */; };
+		BLF0000000000000000000049 /* PuzzleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000050 /* PuzzleRepository.swift */; };
+		BLF0000000000000000000050 /* ExternalAppLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000051 /* ExternalAppLauncher.swift */; };
+		BLF0000000000000000000051 /* PedometerStepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000052 /* PedometerStepCounter.swift */; };
+		BLF0000000000000000000052 /* StepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000053 /* StepCounter.swift */; };
+		BLF0000000000000000000053 /* AlarmRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000054 /* AlarmRepository.swift */; };
+		BLF0000000000000000000054 /* FileAlarmRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000055 /* FileAlarmRepository.swift */; };
+		BLF0000000000000000000055 /* FileQRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000056 /* FileQRCodeRepository.swift */; };
+		BLF0000000000000000000056 /* QRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000057 /* QRCodeRepository.swift */; };
+		BLF0000000000000000000057 /* WakeUpCheckStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000058 /* WakeUpCheckStateStore.swift */; };
+		BLF0000000000000000000058 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000059 /* QRScannerView.swift */; };
+		BLF0000000000000000000059 /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000060 /* QuoteRepository.swift */; };
+		BLF0000000000000000000060 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000062 /* puzzles.json */; };
+		BLF0000000000000000000061 /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000063 /* quotes.json */; };
+		BLF0000000000000000000062 /* default_alarm.wav in Resources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000064 /* default_alarm.wav */; };
+		BLF0000000000000000000063 /* OpenAlarmIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000065 /* OpenAlarmIntent.swift */; };
+		BLF0000000000000000000064 /* MorningAlarmWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000067 /* MorningAlarmWidgets.swift */; };
+		BLF0000000000000000000065 /* MorningAlarmWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000068 /* MorningAlarmWidgetsBundle.swift */; };
+		BLF0000000000000000000066 /* AlarmCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000069 /* AlarmCoordinatorTests.swift */; };
+		BLF0000000000000000000067 /* ChessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000070 /* ChessTests.swift */; };
+		BLF0000000000000000000068 /* Fakes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000071 /* Fakes.swift */; };
+		BLF0000000000000000000069 /* MissionConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000072 /* MissionConfigurationTests.swift */; };
+		BLF0000000000000000000070 /* MissionCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000073 /* MissionCoordinatorTests.swift */; };
+		BLF0000000000000000000071 /* QRCodeRegistrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000074 /* QRCodeRegistrationTests.swift */; };
+		BLF0000000000000000000072 /* QuoteCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000075 /* QuoteCoordinatorTests.swift */; };
+		BLF0000000000000000000073 /* RecurrenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000076 /* RecurrenceTests.swift */; };
+		BLF0000000000000000000074 /* RepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000077 /* RepositoryTests.swift */; };
+		BLF0000000000000000000075 /* StepValidationEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000078 /* StepValidationEngineTests.swift */; };
+		BLF0000000000000000000076 /* WakeUpCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000079 /* WakeUpCoordinatorTests.swift */; };
+		BLF0000000000000000000077 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000013 /* MorningAlarmMetadata.swift */; };
+		BLF0000000000000000000078 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = PRD0000000000000000000002 /* MorningAlarmWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C10000000000000000000001 /* PBXContainerItemProxy */ = {
+		CIP0000000000000000000001 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = A10000000000000000000001 /* Project object */;
+			containerPortal = PRJ0000000000000000000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = T10000000000000000000002;
+			remoteGlobalIDString = TGT0000000000000000000002;
 			remoteInfo = MorningAlarmWidgets;
+		};
+		CIP0000000000000000000002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PRJ0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = TGT0000000000000000000001;
+			remoteInfo = MorningAlarm;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		PH10000000000000000000001 /* Embed Foundation Extensions */ = {
+		EMB0000000000000000000001 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B10000000000000000000016 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */,
+				BLF0000000000000000000078 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,89 +119,106 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F10000000000000000000001 /* MorningAlarmApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmApp.swift; sourceTree = "<group>"; };
-		F10000000000000000000002 /* AppDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencyContainer.swift; sourceTree = "<group>"; };
-		F10000000000000000000003 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
-		F10000000000000000000004 /* LocalTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTime.swift; sourceTree = "<group>"; };
-		F10000000000000000000005 /* AlarmSoundConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSoundConfiguration.swift; sourceTree = "<group>"; };
-		F10000000000000000000006 /* SnoozeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozeConfiguration.swift; sourceTree = "<group>"; };
-		F10000000000000000000007 /* AlarmRuntimeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRuntimeState.swift; sourceTree = "<group>"; };
-		F10000000000000000000008 /* AlarmCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmCoordinator.swift; sourceTree = "<group>"; };
-		F10000000000000000000009 /* AlarmRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRepository.swift; sourceTree = "<group>"; };
-		F1000000000000000000000A /* FileAlarmRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAlarmRepository.swift; sourceTree = "<group>"; };
-		F1000000000000000000000B /* AlarmScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmScheduler.swift; sourceTree = "<group>"; };
-		F1000000000000000000000C /* AlarmKitScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmKitScheduler.swift; sourceTree = "<group>"; };
-		F1000000000000000000000D /* LocalAlarmAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAlarmAudioPlayer.swift; sourceTree = "<group>"; };
-		F1000000000000000000000E /* AlarmListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmListView.swift; sourceTree = "<group>"; };
-		F1000000000000000000000F /* AlarmEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmEditorView.swift; sourceTree = "<group>"; };
-		F10000000000000000000010 /* AlarmRingingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRingingView.swift; sourceTree = "<group>"; };
-		F10000000000000000000011 /* OpenAlarmIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAlarmIntent.swift; sourceTree = "<group>"; };
-		F10000000000000000000012 /* default_alarm.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = default_alarm.wav; sourceTree = "<group>"; };
-		F10000000000000000000013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		F10000000000000000000014 /* MorningAlarmWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmWidgets.swift; sourceTree = "<group>"; };
-		F10000000000000000000015 /* MorningAlarmWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmWidgetsBundle.swift; sourceTree = "<group>"; };
-		F10000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F10000000000000000000017 /* MorningAlarm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MorningAlarm.entitlements; sourceTree = "<group>"; };
-		F10000000000000000000018 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F10000000000000000000019 /* MorningAlarmMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmMetadata.swift; sourceTree = "<group>"; };
-		P10000000000000000000001 /* MorningAlarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MorningAlarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		P10000000000000000000002 /* MorningAlarmWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MorningAlarmWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		F10000000000000000000020 /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
-		F10000000000000000000021 /* Recurrence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recurrence.swift; sourceTree = "<group>"; };
-		F10000000000000000000022 /* MissionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionType.swift; sourceTree = "<group>"; };
-		F10000000000000000000023 /* MissionConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfiguration.swift; sourceTree = "<group>"; };
-		F10000000000000000000024 /* MissionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionResult.swift; sourceTree = "<group>"; };
-		F10000000000000000000025 /* MissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionRunner.swift; sourceTree = "<group>"; };
-		F10000000000000000000026 /* MissionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionSession.swift; sourceTree = "<group>"; };
-		F10000000000000000000027 /* StepValidationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepValidationEngine.swift; sourceTree = "<group>"; };
-		F10000000000000000000028 /* StepMissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMissionRunner.swift; sourceTree = "<group>"; };
-		F10000000000000000000029 /* MissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionCoordinator.swift; sourceTree = "<group>"; };
-		F10000000000000000000030 /* StepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepCounter.swift; sourceTree = "<group>"; };
-		F10000000000000000000031 /* PedometerStepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PedometerStepCounter.swift; sourceTree = "<group>"; };
-		F10000000000000000000032 /* MissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionView.swift; sourceTree = "<group>"; };
-		F10000000000000000000033 /* QRCodeRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRegistration.swift; sourceTree = "<group>"; };
-		F10000000000000000000034 /* QRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRepository.swift; sourceTree = "<group>"; };
-		F10000000000000000000035 /* FileQRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQRCodeRepository.swift; sourceTree = "<group>"; };
-		F10000000000000000000036 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
-		F10000000000000000000037 /* QRMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRMissionContentView.swift; sourceTree = "<group>"; };
-		F10000000000000000000038 /* QRSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRSetupView.swift; sourceTree = "<group>"; };
-		F10000000000000000000039 /* ChessPiece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessPiece.swift; sourceTree = "<group>"; };
-		F10000000000000000000040 /* ChessSquare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessSquare.swift; sourceTree = "<group>"; };
-		F10000000000000000000041 /* ChessMove.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMove.swift; sourceTree = "<group>"; };
-		F10000000000000000000042 /* ChessBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoard.swift; sourceTree = "<group>"; };
-		F10000000000000000000043 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
-		F10000000000000000000044 /* ChessEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessEngine.swift; sourceTree = "<group>"; };
-		F10000000000000000000045 /* PuzzleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleRepository.swift; sourceTree = "<group>"; };
-		F10000000000000000000046 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
-		F10000000000000000000047 /* ChessMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMissionContentView.swift; sourceTree = "<group>"; };
-		F10000000000000000000048 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
-		F10000000000000000000049 /* QuoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRepository.swift; sourceTree = "<group>"; };
-		F10000000000000000000050 /* QuoteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCoordinator.swift; sourceTree = "<group>"; };
-		F10000000000000000000051 /* PostAlarmAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAlarmAction.swift; sourceTree = "<group>"; };
-		F10000000000000000000052 /* ExternalAppLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalAppLauncher.swift; sourceTree = "<group>"; };
-		F10000000000000000000053 /* quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quotes.json; sourceTree = "<group>"; };
-		F10000000000000000000054 /* WakeUpCheckConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckConfiguration.swift; sourceTree = "<group>"; };
-		F10000000000000000000055 /* GentleWakeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GentleWakeConfiguration.swift; sourceTree = "<group>"; };
-		F10000000000000000000056 /* WakeUpCheckStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckStateStore.swift; sourceTree = "<group>"; };
-		F10000000000000000000057 /* WakeUpCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCoordinator.swift; sourceTree = "<group>"; };
-		F10000000000000000000058 /* SnoozedConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozedConfirmationView.swift; sourceTree = "<group>"; };
-		F10000000000000000000059 /* MorningCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningCompleteView.swift; sourceTree = "<group>"; };
-		F10000000000000000000060 /* WakeUpCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckView.swift; sourceTree = "<group>"; };
-		F10000000000000000000061 /* MissionConfigurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfigurationPicker.swift; sourceTree = "<group>"; };
-		F10000000000000000000062 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
+		FRF0000000000000000000001 /* AppDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencyContainer.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000002 /* MorningAlarmApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmApp.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000003 /* AlarmCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmCoordinator.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000004 /* MissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionCoordinator.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000005 /* QuoteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCoordinator.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000006 /* WakeUpCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCoordinator.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000007 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FRF0000000000000000000008 /* Alarm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alarm.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000009 /* AlarmRuntimeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRuntimeState.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000010 /* AlarmSoundConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmSoundConfiguration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000011 /* GentleWakeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GentleWakeConfiguration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000012 /* LocalTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalTime.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000013 /* MorningAlarmMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmMetadata.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000014 /* PostAlarmAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAlarmAction.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000015 /* Recurrence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recurrence.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000016 /* SnoozeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozeConfiguration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000017 /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000018 /* ChessBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoard.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000019 /* ChessMove.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMove.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000020 /* ChessPiece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessPiece.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000021 /* ChessSquare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessSquare.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000022 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000023 /* MissionConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfiguration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000024 /* MissionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionResult.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000025 /* MissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionRunner.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000026 /* MissionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionSession.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000027 /* MissionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionType.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000028 /* StepMissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMissionRunner.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000029 /* StepValidationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepValidationEngine.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000030 /* QRCodeRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRegistration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000031 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000032 /* WakeUpCheckConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckConfiguration.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000033 /* AlarmEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmEditorView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000034 /* MissionConfigurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfigurationPicker.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000035 /* AlarmRingingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRingingView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000036 /* SnoozedConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozedConfirmationView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000037 /* AlarmListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmListView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000038 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000039 /* ChessMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMissionContentView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000040 /* MissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000041 /* QRMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRMissionContentView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000042 /* MorningCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningCompleteView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000043 /* QRSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRSetupView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000044 /* WakeUpCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000045 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FRF0000000000000000000046 /* AlarmKitScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmKitScheduler.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000047 /* AlarmScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmScheduler.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000048 /* LocalAlarmAudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalAlarmAudioPlayer.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000049 /* ChessEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessEngine.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000050 /* PuzzleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000051 /* ExternalAppLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalAppLauncher.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000052 /* PedometerStepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PedometerStepCounter.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000053 /* StepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepCounter.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000054 /* AlarmRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000055 /* FileAlarmRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAlarmRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000056 /* FileQRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQRCodeRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000057 /* QRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000058 /* WakeUpCheckStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckStateStore.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000059 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000060 /* QuoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRepository.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000061 /* MorningAlarm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MorningAlarm.entitlements; sourceTree = "<group>"; };
+		FRF0000000000000000000062 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
+		FRF0000000000000000000063 /* quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quotes.json; sourceTree = "<group>"; };
+		FRF0000000000000000000064 /* default_alarm.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = default_alarm.wav; sourceTree = "<group>"; };
+		FRF0000000000000000000065 /* OpenAlarmIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAlarmIntent.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000066 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FRF0000000000000000000067 /* MorningAlarmWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmWidgets.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000068 /* MorningAlarmWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmWidgetsBundle.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000069 /* AlarmCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlarmCoordinatorTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000070 /* ChessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000071 /* Fakes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fakes.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000072 /* MissionConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfigurationTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000073 /* MissionCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionCoordinatorTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000074 /* QRCodeRegistrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRegistrationTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000075 /* QuoteCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCoordinatorTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000076 /* RecurrenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurrenceTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000077 /* RepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepositoryTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000078 /* StepValidationEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepValidationEngineTests.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000079 /* WakeUpCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCoordinatorTests.swift; sourceTree = "<group>"; };
+		PRD0000000000000000000001 /* MorningAlarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MorningAlarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		PRD0000000000000000000002 /* MorningAlarmWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MorningAlarmWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		PRD0000000000000000000003 /* MorningAlarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MorningAlarmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		FR10000000000000000000001 /* Frameworks */ = {
+		FRM0000000000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-							B10000000000000000000052 /* quotes.json in Resources */,
-				B10000000000000000000061 /* puzzles.json in Resources */,
-);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		FR10000000000000000000002 /* Frameworks */ = {
+		FRM0000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FRM0000000000000000000003 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -193,391 +228,411 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		G10000000000000000000001 = {
+		GRP0000000000000000000036 = {
 			isa = PBXGroup;
 			children = (
-				G10000000000000000000002 /* MorningAlarm */,
-				G10000000000000000000003 /* MorningAlarmWidgets */,
-				G10000000000000000000004 /* Products */,
+				GRP0000000000000000000033 /* MorningAlarm */,
+				GRP0000000000000000000034 /* MorningAlarmWidgets */,
+				GRP0000000000000000000035 /* MorningAlarmTests */,
+				GRP0000000000000000000037 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		G10000000000000000000002 /* MorningAlarm */ = {
+		GRP0000000000000000000033 /* MorningAlarm */ = {
 			isa = PBXGroup;
 			children = (
-				G10000000000000000000005 /* App */,
-				G10000000000000000000006 /* Domain */,
-				G10000000000000000000007 /* Application */,
-				G10000000000000000000008 /* Infrastructure */,
-				G10000000000000000000009 /* Features */,
-				G1000000000000000000000A /* System */,
-				G1000000000000000000000B /* Resources */,
-				F10000000000000000000013 /* Assets.xcassets */,
-				F10000000000000000000016 /* Info.plist */,
-				F10000000000000000000017 /* MorningAlarm.entitlements */,
+				GRP0000000000000000000001 /* App */,
+				GRP0000000000000000000002 /* Application */,
+				FRF0000000000000000000007 /* Assets.xcassets */,
+				GRP0000000000000000000009 /* Domain */,
+				GRP0000000000000000000017 /* Features */,
+				FRF0000000000000000000045 /* Info.plist */,
+				GRP0000000000000000000026 /* Infrastructure */,
+				FRF0000000000000000000061 /* MorningAlarm.entitlements */,
+				GRP0000000000000000000030 /* Resources */,
+				GRP0000000000000000000032 /* System */,
 			);
 			path = MorningAlarm;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000003 /* MorningAlarmWidgets */ = {
+		GRP0000000000000000000001 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				F10000000000000000000014 /* MorningAlarmWidgets.swift */,
-				F10000000000000000000015 /* MorningAlarmWidgetsBundle.swift */,
-				F10000000000000000000018 /* Info.plist */,
-							G10000000000000000000015 /* Mission */,
-				F10000000000000000000029 /* MissionCoordinator.swift */,
-				G10000000000000000000016 /* Motion */,
-				G10000000000000000000017 /* MissionExperience */,
-				G10000000000000000000018 /* QR */,
-				G10000000000000000000019 /* QR */,
-				G10000000000000000000020 /* QRSetup */,
-				G10000000000000000000021 /* Chess */,
-				G10000000000000000000022 /* Chess */,
-				G10000000000000000000023 /* Quotes */,
-				G10000000000000000000024 /* Quotes */,
-				F10000000000000000000050 /* QuoteCoordinator.swift */,
-				G10000000000000000000025 /* ExternalApps */,
-				G10000000000000000000026 /* Quotes */,
-				G10000000000000000000027 /* WakeUp */,
-				F10000000000000000000057 /* WakeUpCoordinator.swift */,
-				G10000000000000000000028 /* MorningComplete */,
-				G10000000000000000000029 /* WakeUpCheck */,
-				G10000000000000000000030 /* Puzzles */,
-);
-			path = MorningAlarmWidgets;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000004 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				P10000000000000000000001 /* MorningAlarm.app */,
-				P10000000000000000000002 /* MorningAlarmWidgets.appex */,
-							F10000000000000000000022 /* MissionType.swift */,
-				F10000000000000000000023 /* MissionConfiguration.swift */,
-				F10000000000000000000024 /* MissionResult.swift */,
-				F10000000000000000000025 /* MissionRunner.swift */,
-				F10000000000000000000026 /* MissionSession.swift */,
-				F10000000000000000000027 /* StepValidationEngine.swift */,
-				F10000000000000000000028 /* StepMissionRunner.swift */,
-				F10000000000000000000030 /* StepCounter.swift */,
-				F10000000000000000000031 /* PedometerStepCounter.swift */,
-				F10000000000000000000032 /* MissionView.swift */,
-				F10000000000000000000033 /* QRCodeRegistration.swift */,
-				F10000000000000000000036 /* QRScannerView.swift */,
-				F10000000000000000000037 /* QRMissionContentView.swift */,
-				F10000000000000000000038 /* QRSetupView.swift */,
-				F10000000000000000000039 /* ChessPiece.swift */,
-				F10000000000000000000040 /* ChessSquare.swift */,
-				F10000000000000000000041 /* ChessMove.swift */,
-				F10000000000000000000042 /* ChessBoard.swift */,
-				F10000000000000000000043 /* Puzzle.swift */,
-				F10000000000000000000044 /* ChessEngine.swift */,
-				F10000000000000000000045 /* PuzzleRepository.swift */,
-				F10000000000000000000046 /* ChessBoardView.swift */,
-				F10000000000000000000047 /* ChessMissionContentView.swift */,
-				F10000000000000000000048 /* Quote.swift */,
-				F10000000000000000000049 /* QuoteRepository.swift */,
-				F10000000000000000000052 /* ExternalAppLauncher.swift */,
-				F10000000000000000000053 /* quotes.json */,
-				F10000000000000000000054 /* WakeUpCheckConfiguration.swift */,
-				F10000000000000000000059 /* MorningCompleteView.swift */,
-				F10000000000000000000060 /* WakeUpCheckView.swift */,
-				F10000000000000000000062 /* puzzles.json */,
-);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000005 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				F10000000000000000000001 /* MorningAlarmApp.swift */,
-				F10000000000000000000002 /* AppDependencyContainer.swift */,
+				FRF0000000000000000000001 /* AppDependencyContainer.swift */,
+				FRF0000000000000000000002 /* MorningAlarmApp.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000006 /* Domain */ = {
+		GRP0000000000000000000002 /* Application */ = {
 			isa = PBXGroup;
 			children = (
-				G1000000000000000000000C /* Alarm */,
+				FRF0000000000000000000003 /* AlarmCoordinator.swift */,
+				FRF0000000000000000000004 /* MissionCoordinator.swift */,
+				FRF0000000000000000000005 /* QuoteCoordinator.swift */,
+				FRF0000000000000000000006 /* WakeUpCoordinator.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000009 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				GRP0000000000000000000003 /* Alarm */,
+				GRP0000000000000000000004 /* Chess */,
+				GRP0000000000000000000005 /* Mission */,
+				GRP0000000000000000000006 /* QR */,
+				GRP0000000000000000000007 /* Quotes */,
+				GRP0000000000000000000008 /* WakeUp */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000007 /* Application */ = {
+		GRP0000000000000000000003 /* Alarm */ = {
 			isa = PBXGroup;
 			children = (
-				F10000000000000000000008 /* AlarmCoordinator.swift */,
-							F10000000000000000000020 /* Weekday.swift */,
-				F10000000000000000000021 /* Recurrence.swift */,
-				F10000000000000000000051 /* PostAlarmAction.swift */,
-				F10000000000000000000055 /* GentleWakeConfiguration.swift */,
-);
-			path = Application;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000008 /* Infrastructure */ = {
-			isa = PBXGroup;
-			children = (
-				G1000000000000000000000D /* Persistence */,
-				G1000000000000000000000E /* Alarm */,
-				G1000000000000000000000F /* Audio */,
-			);
-			path = Infrastructure;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000009 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				G10000000000000000000010 /* AlarmList */,
-				G10000000000000000000011 /* AlarmEditor */,
-				G10000000000000000000012 /* AlarmExperience */,
-							F10000000000000000000034 /* QRCodeRepository.swift */,
-				F10000000000000000000035 /* FileQRCodeRepository.swift */,
-				F10000000000000000000056 /* WakeUpCheckStateStore.swift */,
-);
-			path = Features;
-			sourceTree = "<group>";
-		};
-		G1000000000000000000000A /* System */ = {
-			isa = PBXGroup;
-			children = (
-				G10000000000000000000013 /* AppIntents */,
-							F10000000000000000000058 /* SnoozedConfirmationView.swift */,
-				F10000000000000000000061 /* MissionConfigurationPicker.swift */,
-);
-			path = System;
-			sourceTree = "<group>";
-		};
-		G1000000000000000000000B /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				G10000000000000000000014 /* Sounds */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		G1000000000000000000000C /* Alarm */ = {
-			isa = PBXGroup;
-			children = (
-				F10000000000000000000003 /* Alarm.swift */,
-				F10000000000000000000004 /* LocalTime.swift */,
-				F10000000000000000000005 /* AlarmSoundConfiguration.swift */,
-				F10000000000000000000006 /* SnoozeConfiguration.swift */,
-				F10000000000000000000007 /* AlarmRuntimeState.swift */,
-				F10000000000000000000019 /* MorningAlarmMetadata.swift */,
+				FRF0000000000000000000008 /* Alarm.swift */,
+				FRF0000000000000000000009 /* AlarmRuntimeState.swift */,
+				FRF0000000000000000000010 /* AlarmSoundConfiguration.swift */,
+				FRF0000000000000000000011 /* GentleWakeConfiguration.swift */,
+				FRF0000000000000000000012 /* LocalTime.swift */,
+				FRF0000000000000000000013 /* MorningAlarmMetadata.swift */,
+				FRF0000000000000000000014 /* PostAlarmAction.swift */,
+				FRF0000000000000000000015 /* Recurrence.swift */,
+				FRF0000000000000000000016 /* SnoozeConfiguration.swift */,
+				FRF0000000000000000000017 /* Weekday.swift */,
 			);
 			path = Alarm;
 			sourceTree = "<group>";
 		};
-		G1000000000000000000000D /* Persistence */ = {
+		GRP0000000000000000000004 /* Chess */ = {
 			isa = PBXGroup;
 			children = (
-				F10000000000000000000009 /* AlarmRepository.swift */,
-				F1000000000000000000000A /* FileAlarmRepository.swift */,
+				FRF0000000000000000000018 /* ChessBoard.swift */,
+				FRF0000000000000000000019 /* ChessMove.swift */,
+				FRF0000000000000000000020 /* ChessPiece.swift */,
+				FRF0000000000000000000021 /* ChessSquare.swift */,
+				FRF0000000000000000000022 /* Puzzle.swift */,
 			);
-			path = Persistence;
+			path = Chess;
 			sourceTree = "<group>";
 		};
-		G1000000000000000000000E /* Alarm */ = {
+		GRP0000000000000000000005 /* Mission */ = {
 			isa = PBXGroup;
 			children = (
-				F1000000000000000000000B /* AlarmScheduler.swift */,
-				F1000000000000000000000C /* AlarmKitScheduler.swift */,
-			);
-			path = Alarm;
-			sourceTree = "<group>";
-		};
-		G1000000000000000000000F /* Audio */ = {
-			isa = PBXGroup;
-			children = (
-				F1000000000000000000000D /* LocalAlarmAudioPlayer.swift */,
-			);
-			path = Audio;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000010 /* AlarmList */ = {
-			isa = PBXGroup;
-			children = (
-				F1000000000000000000000E /* AlarmListView.swift */,
-			);
-			path = AlarmList;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000011 /* AlarmEditor */ = {
-			isa = PBXGroup;
-			children = (
-				F1000000000000000000000F /* AlarmEditorView.swift */,
-			);
-			path = AlarmEditor;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000012 /* AlarmExperience */ = {
-			isa = PBXGroup;
-			children = (
-				F10000000000000000000010 /* AlarmRingingView.swift */,
-			);
-			path = AlarmExperience;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000013 /* AppIntents */ = {
-			isa = PBXGroup;
-			children = (
-				F10000000000000000000011 /* OpenAlarmIntent.swift */,
-			);
-			path = AppIntents;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000014 /* Sounds */ = {
-			isa = PBXGroup;
-			children = (
-				F10000000000000000000012 /* default_alarm.wav */,
-			);
-			path = Sounds;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000015 /* Mission */ = {
-			isa = PBXGroup;
-			children = (
+				FRF0000000000000000000023 /* MissionConfiguration.swift */,
+				FRF0000000000000000000024 /* MissionResult.swift */,
+				FRF0000000000000000000025 /* MissionRunner.swift */,
+				FRF0000000000000000000026 /* MissionSession.swift */,
+				FRF0000000000000000000027 /* MissionType.swift */,
+				FRF0000000000000000000028 /* StepMissionRunner.swift */,
+				FRF0000000000000000000029 /* StepValidationEngine.swift */,
 			);
 			path = Mission;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000016 /* Motion */ = {
+		GRP0000000000000000000006 /* QR */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			path = Motion;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000017 /* MissionExperience */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = MissionExperience;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000018 /* QR */ = {
-			isa = PBXGroup;
-			children = (
+				FRF0000000000000000000030 /* QRCodeRegistration.swift */,
 			);
 			path = QR;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000019 /* QR */ = {
+		GRP0000000000000000000007 /* Quotes */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			path = QR;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000020 /* QRSetup */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = QRSetup;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000021 /* Chess */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Chess;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000022 /* Chess */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Chess;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000023 /* Quotes */ = {
-			isa = PBXGroup;
-			children = (
+				FRF0000000000000000000031 /* Quote.swift */,
 			);
 			path = Quotes;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000024 /* Quotes */ = {
+		GRP0000000000000000000008 /* WakeUp */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			path = Quotes;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000025 /* ExternalApps */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = ExternalApps;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000026 /* Quotes */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Quotes;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000027 /* WakeUp */ = {
-			isa = PBXGroup;
-			children = (
+				FRF0000000000000000000032 /* WakeUpCheckConfiguration.swift */,
 			);
 			path = WakeUp;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000028 /* MorningComplete */ = {
+		GRP0000000000000000000017 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				GRP0000000000000000000010 /* AlarmEditor */,
+				GRP0000000000000000000011 /* AlarmExperience */,
+				GRP0000000000000000000012 /* AlarmList */,
+				GRP0000000000000000000013 /* MissionExperience */,
+				GRP0000000000000000000014 /* MorningComplete */,
+				GRP0000000000000000000015 /* QRSetup */,
+				GRP0000000000000000000016 /* WakeUpCheck */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000010 /* AlarmEditor */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000033 /* AlarmEditorView.swift */,
+				FRF0000000000000000000034 /* MissionConfigurationPicker.swift */,
+			);
+			path = AlarmEditor;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000011 /* AlarmExperience */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000035 /* AlarmRingingView.swift */,
+				FRF0000000000000000000036 /* SnoozedConfirmationView.swift */,
+			);
+			path = AlarmExperience;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000012 /* AlarmList */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000037 /* AlarmListView.swift */,
+			);
+			path = AlarmList;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000013 /* MissionExperience */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000038 /* ChessBoardView.swift */,
+				FRF0000000000000000000039 /* ChessMissionContentView.swift */,
+				FRF0000000000000000000040 /* MissionView.swift */,
+				FRF0000000000000000000041 /* QRMissionContentView.swift */,
+			);
+			path = MissionExperience;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000014 /* MorningComplete */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000042 /* MorningCompleteView.swift */,
 			);
 			path = MorningComplete;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000029 /* WakeUpCheck */ = {
+		GRP0000000000000000000015 /* QRSetup */ = {
 			isa = PBXGroup;
 			children = (
+				FRF0000000000000000000043 /* QRSetupView.swift */,
+			);
+			path = QRSetup;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000016 /* WakeUpCheck */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000044 /* WakeUpCheckView.swift */,
 			);
 			path = WakeUpCheck;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000030 /* Puzzles */ = {
+		GRP0000000000000000000026 /* Infrastructure */ = {
 			isa = PBXGroup;
 			children = (
+				GRP0000000000000000000018 /* Alarm */,
+				GRP0000000000000000000019 /* Audio */,
+				GRP0000000000000000000020 /* Chess */,
+				GRP0000000000000000000021 /* ExternalApps */,
+				GRP0000000000000000000022 /* Motion */,
+				GRP0000000000000000000023 /* Persistence */,
+				GRP0000000000000000000024 /* QR */,
+				GRP0000000000000000000025 /* Quotes */,
+			);
+			path = Infrastructure;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000018 /* Alarm */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000046 /* AlarmKitScheduler.swift */,
+				FRF0000000000000000000047 /* AlarmScheduler.swift */,
+			);
+			path = Alarm;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000019 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000048 /* LocalAlarmAudioPlayer.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000020 /* Chess */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000049 /* ChessEngine.swift */,
+				FRF0000000000000000000050 /* PuzzleRepository.swift */,
+			);
+			path = Chess;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000021 /* ExternalApps */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000051 /* ExternalAppLauncher.swift */,
+			);
+			path = ExternalApps;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000022 /* Motion */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000052 /* PedometerStepCounter.swift */,
+				FRF0000000000000000000053 /* StepCounter.swift */,
+			);
+			path = Motion;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000023 /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000054 /* AlarmRepository.swift */,
+				FRF0000000000000000000055 /* FileAlarmRepository.swift */,
+				FRF0000000000000000000056 /* FileQRCodeRepository.swift */,
+				FRF0000000000000000000057 /* QRCodeRepository.swift */,
+				FRF0000000000000000000058 /* WakeUpCheckStateStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000024 /* QR */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000059 /* QRScannerView.swift */,
+			);
+			path = QR;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000025 /* Quotes */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000060 /* QuoteRepository.swift */,
+			);
+			path = Quotes;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000030 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				GRP0000000000000000000027 /* Puzzles */,
+				GRP0000000000000000000028 /* Quotes */,
+				GRP0000000000000000000029 /* Sounds */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000027 /* Puzzles */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000062 /* puzzles.json */,
 			);
 			path = Puzzles;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000028 /* Quotes */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000063 /* quotes.json */,
+			);
+			path = Quotes;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000029 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000064 /* default_alarm.wav */,
+			);
+			path = Sounds;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000032 /* System */ = {
+			isa = PBXGroup;
+			children = (
+				GRP0000000000000000000031 /* AppIntents */,
+			);
+			path = System;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000031 /* AppIntents */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000065 /* OpenAlarmIntent.swift */,
+			);
+			path = AppIntents;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000034 /* MorningAlarmWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000066 /* Info.plist */,
+				FRF0000000000000000000067 /* MorningAlarmWidgets.swift */,
+				FRF0000000000000000000068 /* MorningAlarmWidgetsBundle.swift */,
+			);
+			path = MorningAlarmWidgets;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000035 /* MorningAlarmTests */ = {
+			isa = PBXGroup;
+			children = (
+				FRF0000000000000000000069 /* AlarmCoordinatorTests.swift */,
+				FRF0000000000000000000070 /* ChessTests.swift */,
+				FRF0000000000000000000071 /* Fakes.swift */,
+				FRF0000000000000000000072 /* MissionConfigurationTests.swift */,
+				FRF0000000000000000000073 /* MissionCoordinatorTests.swift */,
+				FRF0000000000000000000074 /* QRCodeRegistrationTests.swift */,
+				FRF0000000000000000000075 /* QuoteCoordinatorTests.swift */,
+				FRF0000000000000000000076 /* RecurrenceTests.swift */,
+				FRF0000000000000000000077 /* RepositoryTests.swift */,
+				FRF0000000000000000000078 /* StepValidationEngineTests.swift */,
+				FRF0000000000000000000079 /* WakeUpCoordinatorTests.swift */,
+			);
+			path = MorningAlarmTests;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000037 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				PRD0000000000000000000001 /* MorningAlarm.app */,
+				PRD0000000000000000000002 /* MorningAlarmWidgets.appex */,
+				PRD0000000000000000000003 /* MorningAlarmTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		T10000000000000000000001 /* MorningAlarm */ = {
+		TGT0000000000000000000001 /* MorningAlarm */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CL10000000000000000000002 /* Build configuration list for PBXNativeTarget "MorningAlarm" */;
+			buildConfigurationList = CFL0000000000000000000002 /* Build configuration list for PBXNativeTarget "MorningAlarm" */;
 			buildPhases = (
-				S10000000000000000000001 /* Sources */,
-				FR10000000000000000000001 /* Frameworks */,
-				R10000000000000000000001 /* Resources */,
-				PH10000000000000000000001 /* Embed Foundation Extensions */,
+				SRC0000000000000000000001 /* Sources */,
+				FRM0000000000000000000001 /* Frameworks */,
+				RES0000000000000000000001 /* Resources */,
+				EMB0000000000000000000001 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				D10000000000000000000001 /* PBXTargetDependency */,
+				TDP0000000000000000000001 /* PBXTargetDependency */,
 			);
 			name = MorningAlarm;
 			productName = MorningAlarm;
-			productReference = P10000000000000000000001 /* MorningAlarm.app */;
+			productReference = PRD0000000000000000000001 /* MorningAlarm.app */;
 			productType = "com.apple.product-type.application";
 		};
-		T10000000000000000000002 /* MorningAlarmWidgets */ = {
+		TGT0000000000000000000002 /* MorningAlarmWidgets */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CL10000000000000000000003 /* Build configuration list for PBXNativeTarget "MorningAlarmWidgets" */;
+			buildConfigurationList = CFL0000000000000000000003 /* Build configuration list for PBXNativeTarget "MorningAlarmWidgets" */;
 			buildPhases = (
-				S10000000000000000000002 /* Sources */,
-				FR10000000000000000000002 /* Frameworks */,
-				R10000000000000000000002 /* Resources */,
+				SRC0000000000000000000002 /* Sources */,
+				FRM0000000000000000000002 /* Frameworks */,
+				RES0000000000000000000002 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -585,28 +640,50 @@
 			);
 			name = MorningAlarmWidgets;
 			productName = MorningAlarmWidgets;
-			productReference = P10000000000000000000002 /* MorningAlarmWidgets.appex */;
+			productReference = PRD0000000000000000000002 /* MorningAlarmWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		TGT0000000000000000000003 /* MorningAlarmTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFL0000000000000000000004 /* Build configuration list for PBXNativeTarget "MorningAlarmTests" */;
+			buildPhases = (
+				SRC0000000000000000000003 /* Sources */,
+				FRM0000000000000000000003 /* Frameworks */,
+				RES0000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				TDP0000000000000000000002 /* PBXTargetDependency */,
+			);
+			name = MorningAlarmTests;
+			productName = MorningAlarmTests;
+			productReference = PRD0000000000000000000003 /* MorningAlarmTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A10000000000000000000001 /* Project object */ = {
+		PRJ0000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					T10000000000000000000001 = {
+					TGT0000000000000000000001 = {
 						CreatedOnToolsVersion = 26.0;
 					};
-					T10000000000000000000002 = {
+					TGT0000000000000000000002 = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					TGT0000000000000000000003 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = TGT0000000000000000000001;
 					};
 				};
 			};
-			buildConfigurationList = CL10000000000000000000001 /* Build configuration list for PBXProject "MorningAlarm" */;
+			buildConfigurationList = CFL0000000000000000000001 /* Build configuration list for PBXProject "MorningAlarm" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -614,69 +691,38 @@
 				en,
 				Base,
 			);
-			mainGroup = G10000000000000000000001;
-			productRefGroup = G10000000000000000000004 /* Products */;
+			mainGroup = GRP0000000000000000000036;
+			productRefGroup = GRP0000000000000000000037 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				T10000000000000000000001 /* MorningAlarm */,
-				T10000000000000000000002 /* MorningAlarmWidgets */,
+				TGT0000000000000000000001 /* MorningAlarm */,
+				TGT0000000000000000000002 /* MorningAlarmWidgets */,
+				TGT0000000000000000000003 /* MorningAlarmTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		R10000000000000000000001 /* Resources */ = {
+		RES0000000000000000000001 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B10000000000000000000012 /* default_alarm.wav in Resources */,
-				B10000000000000000000013 /* Assets.xcassets in Resources */,
-							B10000000000000000000019 /* Weekday.swift in Sources */,
-				B10000000000000000000020 /* Recurrence.swift in Sources */,
-				B10000000000000000000021 /* MissionType.swift in Sources */,
-				B10000000000000000000022 /* MissionConfiguration.swift in Sources */,
-				B10000000000000000000023 /* MissionResult.swift in Sources */,
-				B10000000000000000000024 /* MissionRunner.swift in Sources */,
-				B10000000000000000000025 /* MissionSession.swift in Sources */,
-				B10000000000000000000026 /* StepValidationEngine.swift in Sources */,
-				B10000000000000000000027 /* StepMissionRunner.swift in Sources */,
-				B10000000000000000000028 /* MissionCoordinator.swift in Sources */,
-				B10000000000000000000029 /* StepCounter.swift in Sources */,
-				B10000000000000000000030 /* PedometerStepCounter.swift in Sources */,
-				B10000000000000000000031 /* MissionView.swift in Sources */,
-				B10000000000000000000032 /* QRCodeRegistration.swift in Sources */,
-				B10000000000000000000033 /* QRCodeRepository.swift in Sources */,
-				B10000000000000000000034 /* FileQRCodeRepository.swift in Sources */,
-				B10000000000000000000035 /* QRScannerView.swift in Sources */,
-				B10000000000000000000036 /* QRMissionContentView.swift in Sources */,
-				B10000000000000000000037 /* QRSetupView.swift in Sources */,
-				B10000000000000000000038 /* ChessPiece.swift in Sources */,
-				B10000000000000000000039 /* ChessSquare.swift in Sources */,
-				B10000000000000000000040 /* ChessMove.swift in Sources */,
-				B10000000000000000000041 /* ChessBoard.swift in Sources */,
-				B10000000000000000000042 /* Puzzle.swift in Sources */,
-				B10000000000000000000043 /* ChessEngine.swift in Sources */,
-				B10000000000000000000044 /* PuzzleRepository.swift in Sources */,
-				B10000000000000000000045 /* ChessBoardView.swift in Sources */,
-				B10000000000000000000046 /* ChessMissionContentView.swift in Sources */,
-				B10000000000000000000047 /* Quote.swift in Sources */,
-				B10000000000000000000048 /* QuoteRepository.swift in Sources */,
-				B10000000000000000000049 /* QuoteCoordinator.swift in Sources */,
-				B10000000000000000000050 /* PostAlarmAction.swift in Sources */,
-				B10000000000000000000051 /* ExternalAppLauncher.swift in Sources */,
-				B10000000000000000000053 /* WakeUpCheckConfiguration.swift in Sources */,
-				B10000000000000000000054 /* GentleWakeConfiguration.swift in Sources */,
-				B10000000000000000000055 /* WakeUpCheckStateStore.swift in Sources */,
-				B10000000000000000000056 /* WakeUpCoordinator.swift in Sources */,
-				B10000000000000000000057 /* SnoozedConfirmationView.swift in Sources */,
-				B10000000000000000000058 /* MorningCompleteView.swift in Sources */,
-				B10000000000000000000059 /* WakeUpCheckView.swift in Sources */,
-				B10000000000000000000060 /* MissionConfigurationPicker.swift in Sources */,
-);
+				BLF0000000000000000000007 /* Assets.xcassets in Resources */,
+				BLF0000000000000000000060 /* puzzles.json in Resources */,
+				BLF0000000000000000000061 /* quotes.json in Resources */,
+				BLF0000000000000000000062 /* default_alarm.wav in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		R10000000000000000000002 /* Resources */ = {
+		RES0000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		RES0000000000000000000003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -686,53 +732,117 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		S10000000000000000000001 /* Sources */ = {
+		SRC0000000000000000000001 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B10000000000000000000001 /* MorningAlarmApp.swift in Sources */,
-				B10000000000000000000002 /* AppDependencyContainer.swift in Sources */,
-				B10000000000000000000003 /* Alarm.swift in Sources */,
-				B10000000000000000000004 /* LocalTime.swift in Sources */,
-				B10000000000000000000005 /* AlarmSoundConfiguration.swift in Sources */,
-				B10000000000000000000006 /* SnoozeConfiguration.swift in Sources */,
-				B10000000000000000000007 /* AlarmRuntimeState.swift in Sources */,
-				B10000000000000000000008 /* AlarmCoordinator.swift in Sources */,
-				B10000000000000000000009 /* AlarmRepository.swift in Sources */,
-				B1000000000000000000000A /* FileAlarmRepository.swift in Sources */,
-				B1000000000000000000000B /* AlarmScheduler.swift in Sources */,
-				B1000000000000000000000C /* AlarmKitScheduler.swift in Sources */,
-				B1000000000000000000000D /* LocalAlarmAudioPlayer.swift in Sources */,
-				B1000000000000000000000E /* AlarmListView.swift in Sources */,
-				B1000000000000000000000F /* AlarmEditorView.swift in Sources */,
-				B10000000000000000000010 /* AlarmRingingView.swift in Sources */,
-				B10000000000000000000011 /* OpenAlarmIntent.swift in Sources */,
-				B10000000000000000000017 /* MorningAlarmMetadata.swift in Sources */,
+				BLF0000000000000000000001 /* AppDependencyContainer.swift in Sources */,
+				BLF0000000000000000000002 /* MorningAlarmApp.swift in Sources */,
+				BLF0000000000000000000003 /* AlarmCoordinator.swift in Sources */,
+				BLF0000000000000000000004 /* MissionCoordinator.swift in Sources */,
+				BLF0000000000000000000005 /* QuoteCoordinator.swift in Sources */,
+				BLF0000000000000000000006 /* WakeUpCoordinator.swift in Sources */,
+				BLF0000000000000000000008 /* Alarm.swift in Sources */,
+				BLF0000000000000000000009 /* AlarmRuntimeState.swift in Sources */,
+				BLF0000000000000000000010 /* AlarmSoundConfiguration.swift in Sources */,
+				BLF0000000000000000000011 /* GentleWakeConfiguration.swift in Sources */,
+				BLF0000000000000000000012 /* LocalTime.swift in Sources */,
+				BLF0000000000000000000013 /* MorningAlarmMetadata.swift in Sources */,
+				BLF0000000000000000000014 /* PostAlarmAction.swift in Sources */,
+				BLF0000000000000000000015 /* Recurrence.swift in Sources */,
+				BLF0000000000000000000016 /* SnoozeConfiguration.swift in Sources */,
+				BLF0000000000000000000017 /* Weekday.swift in Sources */,
+				BLF0000000000000000000018 /* ChessBoard.swift in Sources */,
+				BLF0000000000000000000019 /* ChessMove.swift in Sources */,
+				BLF0000000000000000000020 /* ChessPiece.swift in Sources */,
+				BLF0000000000000000000021 /* ChessSquare.swift in Sources */,
+				BLF0000000000000000000022 /* Puzzle.swift in Sources */,
+				BLF0000000000000000000023 /* MissionConfiguration.swift in Sources */,
+				BLF0000000000000000000024 /* MissionResult.swift in Sources */,
+				BLF0000000000000000000025 /* MissionRunner.swift in Sources */,
+				BLF0000000000000000000026 /* MissionSession.swift in Sources */,
+				BLF0000000000000000000027 /* MissionType.swift in Sources */,
+				BLF0000000000000000000028 /* StepMissionRunner.swift in Sources */,
+				BLF0000000000000000000029 /* StepValidationEngine.swift in Sources */,
+				BLF0000000000000000000030 /* QRCodeRegistration.swift in Sources */,
+				BLF0000000000000000000031 /* Quote.swift in Sources */,
+				BLF0000000000000000000032 /* WakeUpCheckConfiguration.swift in Sources */,
+				BLF0000000000000000000033 /* AlarmEditorView.swift in Sources */,
+				BLF0000000000000000000034 /* MissionConfigurationPicker.swift in Sources */,
+				BLF0000000000000000000035 /* AlarmRingingView.swift in Sources */,
+				BLF0000000000000000000036 /* SnoozedConfirmationView.swift in Sources */,
+				BLF0000000000000000000037 /* AlarmListView.swift in Sources */,
+				BLF0000000000000000000038 /* ChessBoardView.swift in Sources */,
+				BLF0000000000000000000039 /* ChessMissionContentView.swift in Sources */,
+				BLF0000000000000000000040 /* MissionView.swift in Sources */,
+				BLF0000000000000000000041 /* QRMissionContentView.swift in Sources */,
+				BLF0000000000000000000042 /* MorningCompleteView.swift in Sources */,
+				BLF0000000000000000000043 /* QRSetupView.swift in Sources */,
+				BLF0000000000000000000044 /* WakeUpCheckView.swift in Sources */,
+				BLF0000000000000000000045 /* AlarmKitScheduler.swift in Sources */,
+				BLF0000000000000000000046 /* AlarmScheduler.swift in Sources */,
+				BLF0000000000000000000047 /* LocalAlarmAudioPlayer.swift in Sources */,
+				BLF0000000000000000000048 /* ChessEngine.swift in Sources */,
+				BLF0000000000000000000049 /* PuzzleRepository.swift in Sources */,
+				BLF0000000000000000000050 /* ExternalAppLauncher.swift in Sources */,
+				BLF0000000000000000000051 /* PedometerStepCounter.swift in Sources */,
+				BLF0000000000000000000052 /* StepCounter.swift in Sources */,
+				BLF0000000000000000000053 /* AlarmRepository.swift in Sources */,
+				BLF0000000000000000000054 /* FileAlarmRepository.swift in Sources */,
+				BLF0000000000000000000055 /* FileQRCodeRepository.swift in Sources */,
+				BLF0000000000000000000056 /* QRCodeRepository.swift in Sources */,
+				BLF0000000000000000000057 /* WakeUpCheckStateStore.swift in Sources */,
+				BLF0000000000000000000058 /* QRScannerView.swift in Sources */,
+				BLF0000000000000000000059 /* QuoteRepository.swift in Sources */,
+				BLF0000000000000000000063 /* OpenAlarmIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		S10000000000000000000002 /* Sources */ = {
+		SRC0000000000000000000002 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B10000000000000000000014 /* MorningAlarmWidgets.swift in Sources */,
-				B10000000000000000000015 /* MorningAlarmWidgetsBundle.swift in Sources */,
-				B10000000000000000000018 /* MorningAlarmMetadata.swift in Sources */,
+				BLF0000000000000000000064 /* MorningAlarmWidgets.swift in Sources */,
+				BLF0000000000000000000065 /* MorningAlarmWidgetsBundle.swift in Sources */,
+				BLF0000000000000000000077 /* MorningAlarmMetadata.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		SRC0000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BLF0000000000000000000066 /* AlarmCoordinatorTests.swift in Sources */,
+				BLF0000000000000000000067 /* ChessTests.swift in Sources */,
+				BLF0000000000000000000068 /* Fakes.swift in Sources */,
+				BLF0000000000000000000069 /* MissionConfigurationTests.swift in Sources */,
+				BLF0000000000000000000070 /* MissionCoordinatorTests.swift in Sources */,
+				BLF0000000000000000000071 /* QRCodeRegistrationTests.swift in Sources */,
+				BLF0000000000000000000072 /* QuoteCoordinatorTests.swift in Sources */,
+				BLF0000000000000000000073 /* RecurrenceTests.swift in Sources */,
+				BLF0000000000000000000074 /* RepositoryTests.swift in Sources */,
+				BLF0000000000000000000075 /* StepValidationEngineTests.swift in Sources */,
+				BLF0000000000000000000076 /* WakeUpCoordinatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D10000000000000000000001 /* PBXTargetDependency */ = {
+		TDP0000000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = T10000000000000000000002 /* MorningAlarmWidgets */;
-			targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */;
+			target = TGT0000000000000000000002 /* MorningAlarmWidgets */;
+			targetProxy = CIP0000000000000000000001 /* PBXContainerItemProxy */;
+		};
+		TDP0000000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = TGT0000000000000000000001 /* MorningAlarm */;
+			targetProxy = CIP0000000000000000000002 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		X10000000000000000000001 /* Debug */ = {
+		BCF0000000000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -761,7 +871,7 @@
 			};
 			name = Debug;
 		};
-		X10000000000000000000002 /* Release */ = {
+		BCF0000000000000000000002 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -783,7 +893,7 @@
 			};
 			name = Release;
 		};
-		X10000000000000000000003 /* Debug */ = {
+		BCF0000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -797,7 +907,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -811,7 +921,7 @@
 			};
 			name = Debug;
 		};
-		X10000000000000000000004 /* Release */ = {
+		BCF0000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -825,7 +935,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -839,7 +949,7 @@
 			};
 			name = Release;
 		};
-		X10000000000000000000005 /* Debug */ = {
+		BCF0000000000000000000005 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -863,7 +973,7 @@
 			};
 			name = Debug;
 		};
-		X10000000000000000000006 /* Release */ = {
+		BCF0000000000000000000006 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
@@ -884,40 +994,85 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BCF0000000000000000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PM6L924XY6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.morningalarm.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MorningAlarm.app/MorningAlarm";
+			};
+			name = Debug;
+		};
+		BCF0000000000000000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PM6L924XY6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.morningalarm.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MorningAlarm.app/MorningAlarm";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CL10000000000000000000001 /* Build configuration list for PBXProject "MorningAlarm" */ = {
+		CFL0000000000000000000001 /* Build configuration list for PBXProject "MorningAlarm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				X10000000000000000000001 /* Debug */,
-				X10000000000000000000002 /* Release */,
+				BCF0000000000000000000001 /* Debug */,
+				BCF0000000000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CL10000000000000000000002 /* Build configuration list for PBXNativeTarget "MorningAlarm" */ = {
+		CFL0000000000000000000002 /* Build configuration list for PBXNativeTarget "MorningAlarm" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				X10000000000000000000003 /* Debug */,
-				X10000000000000000000004 /* Release */,
+				BCF0000000000000000000003 /* Debug */,
+				BCF0000000000000000000004 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CL10000000000000000000003 /* Build configuration list for PBXNativeTarget "MorningAlarmWidgets" */ = {
+		CFL0000000000000000000003 /* Build configuration list for PBXNativeTarget "MorningAlarmWidgets" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				X10000000000000000000005 /* Debug */,
-				X10000000000000000000006 /* Release */,
+				BCF0000000000000000000005 /* Debug */,
+				BCF0000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFL0000000000000000000004 /* Build configuration list for PBXNativeTarget "MorningAlarmTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BCF0000000000000000000007 /* Debug */,
+				BCF0000000000000000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A10000000000000000000001 /* Project object */;
+	rootObject = PRJ0000000000000000000001 /* Project object */;
 }

@@ -40,15 +40,20 @@ final class MissionSession {
     func start() {
         guard let runner, task == nil else { return }
         task = Task { [weak self] in
-            let outcome = await runner.run { [weak self] progress in
+            // Capturing `self` weakly here, once, and reusing that strong
+            // local everywhere below (including inside the nested
+            // reportProgress/Task closures) avoids re-capturing an
+            // already-weak reference across another concurrency boundary,
+            // which the compiler treats as an unsafe capture of a mutable
+            // (var-like) weak reference in concurrently-executing code.
+            guard let self else { return }
+            let outcome = await runner.run { progress in
                 Task { @MainActor in
-                    self?.progress = progress
+                    self.updateProgress(progress)
                 }
             }
-            await MainActor.run {
-                guard let self, !Task.isCancelled else { return }
-                self.result = outcome
-            }
+            guard !Task.isCancelled else { return }
+            self.result = outcome
         }
     }
 

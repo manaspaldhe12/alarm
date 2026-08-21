@@ -9,7 +9,7 @@ An offline-first iOS alarm app focused on helping you get out of bed, not just d
 - **Apple Developer account** (free or paid) for device installation
 - **AlarmKit entitlement** from Apple (see below)
 
-> **Note on this codebase:** this was written without access to Xcode 26/the iOS 26 SDK, so none of it has been compiler-verified. The architecture and logic are deliberate, but expect a handful of build errors on first compile — mainly around exact AlarmKit API shapes (`Alarm.Schedule.Relative`, `Alarm.CountdownDuration`'s `preAlert` parameter, and the `Alarm.State` case names used for the gentle-wake countdown) since those couldn't be checked against the real SDK. Build it once on a machine with Xcode 26 and fix whatever the compiler flags before relying on it as an alarm.
+> **Note on this codebase:** this was written without access to Xcode 26/the iOS 26 SDK, so the iOS-framework-dependent code (AlarmKit, CoreMotion, AVFoundation, UIKit, SwiftUI-on-iOS, the `Observation` macro) has not been compiler-verified. It has, however, been genuinely validated where it's possible to on non-Apple-SDK tooling: the entire domain/business-logic layer (recurrence math, the chess board/move/engine, step anti-cheat, mission configuration, file-backed repositories) and the full `AlarmCoordinator`/`WakeUpCoordinator`/`MissionCoordinator` state machine were compiled and *executed* for real against a stripped (Observation-free) copy on this machine's Swift 5.7 toolchain, catching and fixing several real bugs (see `MorningAlarmTests/` below — those are the same tests, ported to real XCTest). Expect a handful of build errors on first Xcode 26 compile regardless — mainly around exact AlarmKit API shapes (`Alarm.Schedule.Relative`, `Alarm.CountdownDuration`'s `preAlert` parameter, and the `Alarm.State` case names used for the gentle-wake countdown) since those couldn't be checked against the real SDK.
 
 ## Project location
 
@@ -68,6 +68,16 @@ AlarmKit requires an Apple-granted entitlement. Without it, alarms will not sche
 1. Create an alarm for **1–2 minutes** from now.
 2. Lock your phone or switch to another app.
 3. When the alarm fires, use the system alarm UI or open the app for the in-app **Snooze** / **Turn Off** screen.
+
+## Unit tests
+
+There's a `MorningAlarmTests` target (⌘U in Xcode, or `xcodebuild test`) covering:
+
+- **Domain logic** — `Recurrence`/`Weekday`/`LocalTime` next-fire-date math (including weekday-skipping and week-wraparound), the chess board/move parser and `LocalChessEngine` (FEN parsing, capture/castling/en-passant/promotion, solution-sequence validation), `StepValidationEngine`'s anti-cheat gates (cadence rejection, minimum elapsed time), `MissionConfiguration` Codable round-trips and summaries, `QRCodeRegistration` hashing, and that the bundled `puzzles.json` puzzles all have parseable solution moves.
+- **Persistence** — real file I/O round-trips for `FileAlarmRepository`, `FileQRCodeRepository`, and `WakeUpCheckStateStore`, including "survives a fresh instance" (i.e. app relaunch) checks.
+- **Coordinators** — the full `AlarmCoordinator` state machine (ringing → mission → snoozed/morning-complete, max-snooze enforcement, recurring-vs-one-time turn-off behavior, gentle-wake→ringing transitions, wake-up-check scheduling, mission cancellation) and `WakeUpCoordinator`/`MissionCoordinator`/`QuoteCoordinator`, all driven through hand-written fakes (`MorningAlarmTests/Fakes.swift`) of `AlarmScheduler`/`AlarmAudioPlayer`/`AlarmRepository`/`StepCounter`/`QRCodeRepository`/`PuzzleRepository`/`QuoteRepository`/`ExternalAppLauncher` — no AlarmKit, CoreMotion, AVFoundation, or network access needed to run them.
+
+These tests were developed against a stripped, Observation-free copy of the coordinators on this machine's local Swift toolchain (no Xcode available here) and actually compiled and ran — 76/76 passing — before being ported to the real XCTest target above; porting is mechanical (enum→XCTestCase, custom asserts→XCTAssert*) but hasn't itself been re-run through Xcode 26, so treat first-run hiccups there as porting nits, not logic bugs.
 
 ## Current features
 
