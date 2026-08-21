@@ -42,7 +42,7 @@ struct AlarmRingingView: View {
                     }
 
                     Button(action: onTurnOff) {
-                        Text("Turn Off")
+                        Text("Get Up")
                             .font(.headline)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 18)

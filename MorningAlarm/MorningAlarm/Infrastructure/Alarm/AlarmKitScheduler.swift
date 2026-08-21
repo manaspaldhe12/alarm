@@ -2,6 +2,13 @@ import AlarmKit
 import Foundation
 import SwiftUI
 
+/// Bridges our domain `Alarm` model to AlarmKit's own `Alarm` types.
+///
+/// Both this app's domain model and the AlarmKit framework export a type
+/// named `Alarm`. Swift always resolves a bare `Alarm` to the type declared
+/// in this module (our domain model), so every reference to AlarmKit's
+/// `Alarm` namespace below is explicitly qualified as `AlarmKit.Alarm` to
+/// avoid picking up the wrong type.
 final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
     private let manager = AlarmManager.shared
 
@@ -19,7 +26,7 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
         }
     }
 
-    func schedule(_ alarm: Alarm, fireDate: Date) async throws {
+    func schedule(_ alarm: Alarm, fireDate: Date?) async throws {
         typealias Configuration = AlarmManager.AlarmConfiguration<MorningAlarmMetadata>
 
         let stopButton = AlarmButton(
@@ -47,8 +54,11 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             tintColor: .orange
         )
 
-        let countdownDuration = Alarm.CountdownDuration(postAlert: alarm.snooze.duration)
-        let schedule = Alarm.Schedule.fixed(fireDate)
+        let countdownDuration = AlarmKit.Alarm.CountdownDuration(
+            preAlert: alarm.gentleWake.enabled ? alarm.gentleWake.duration : nil,
+            postAlert: alarm.snooze.duration
+        )
+        let schedule = alarmKitSchedule(for: alarm, fireDate: fireDate)
         let sound = AlertConfiguration.AlertSound.named(alarm.sound.fileName)
 
         let configuration = Configuration(
@@ -77,6 +87,48 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             default:
                 return nil
             }
+        }
+    }
+
+    func countdownAlarmIDs() async -> [UUID] {
+        manager.alarms.compactMap { scheduled in
+            switch scheduled.state {
+            case .countdown:
+                return scheduled.id
+            default:
+                return nil
+            }
+        }
+    }
+
+    /// - `fireDate` provided: a one-shot override (used for snoozing).
+    /// - `fireDate` nil, repeating alarm: a native weekly-repeating AlarmKit schedule.
+    /// - `fireDate` nil, one-time alarm: the next matching one-shot occurrence.
+    private func alarmKitSchedule(for alarm: Alarm, fireDate: Date?) -> AlarmKit.Alarm.Schedule {
+        if let fireDate {
+            return .fixed(fireDate)
+        }
+
+        guard alarm.recurrence.isRepeating else {
+            return .fixed(alarm.nextFireDate())
+        }
+
+        let time = AlarmKit.Alarm.Schedule.Relative.Time(hour: alarm.time.hour, minute: alarm.time.minute)
+        let days = alarm.recurrence.weekdays.sorted().map(\.asLocaleWeekday)
+        return .relative(.init(time: time, repeats: .weekly(days)))
+    }
+}
+
+private extension Weekday {
+    var asLocaleWeekday: Locale.Weekday {
+        switch self {
+        case .sunday: return .sunday
+        case .monday: return .monday
+        case .tuesday: return .tuesday
+        case .wednesday: return .wednesday
+        case .thursday: return .thursday
+        case .friday: return .friday
+        case .saturday: return .saturday
         }
     }
 }

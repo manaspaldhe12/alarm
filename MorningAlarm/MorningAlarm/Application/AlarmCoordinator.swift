@@ -22,25 +22,42 @@ final class AlarmCoordinator {
     private(set) var runtimeState: AlarmRuntimeState = .idle
     private(set) var authorizationGranted = false
     private(set) var lastErrorMessage: String?
+    private(set) var currentMissionSession: MissionSession?
+    private(set) var currentQuote: Quote?
 
     private let repository: AlarmRepository
     private let scheduler: AlarmScheduler
     private let audioPlayer: AlarmAudioPlayer
+    private let missionCoordinator: MissionCoordinator
+    private let quoteCoordinator: QuoteCoordinator
+    let wakeUpCoordinator: WakeUpCoordinator
+    let appLauncher: ExternalAppLauncher
+
     private var observationTask: Task<Void, Never>?
+    private var snoozeCounts: [UUID: Int] = [:]
 
     init(
         repository: AlarmRepository,
         scheduler: AlarmScheduler,
-        audioPlayer: AlarmAudioPlayer
+        audioPlayer: AlarmAudioPlayer,
+        missionCoordinator: MissionCoordinator,
+        quoteCoordinator: QuoteCoordinator,
+        wakeUpCoordinator: WakeUpCoordinator,
+        appLauncher: ExternalAppLauncher
     ) {
         self.repository = repository
         self.scheduler = scheduler
         self.audioPlayer = audioPlayer
+        self.missionCoordinator = missionCoordinator
+        self.quoteCoordinator = quoteCoordinator
+        self.wakeUpCoordinator = wakeUpCoordinator
+        self.appLauncher = appLauncher
     }
 
     func start() async {
         await refreshAuthorization()
         await reloadAlarms()
+        await wakeUpCoordinator.start()
         startObservingSystemAlarms()
 
         NotificationCenter.default.addObserver(
@@ -96,11 +113,13 @@ final class AlarmCoordinator {
     func deleteAlarm(id: UUID) async {
         do {
             try await scheduler.cancel(alarmID: id)
+            await wakeUpCoordinator.cancelPending(forOriginalAlarmID: id)
             try await repository.delete(id: id)
             alarms.removeAll { $0.id == id }
 
-            if case .ringing(let ringingID) = runtimeState, ringingID == id {
+            if isCurrentAlarm(id) {
                 runtimeState = .idle
+                currentMissionSession = nil
                 await audioPlayer.stop()
             }
         } catch {
@@ -111,45 +130,21 @@ final class AlarmCoordinator {
     func setEnabled(_ enabled: Bool, for alarmID: UUID) async {
         guard var alarm = alarms.first(where: { $0.id == alarmID }) else { return }
         alarm.enabled = enabled
+        if !enabled {
+            await wakeUpCoordinator.cancelPending(forOriginalAlarmID: alarmID)
+        }
         await updateAlarm(alarm)
     }
 
-    func turnOffCurrentAlarm() async {
-        guard case .ringing(let alarmID) = runtimeState else { return }
-
-        do {
-            try await scheduler.stop(alarmID: alarmID)
-            await audioPlayer.stop()
-            runtimeState = .idle
-
-            if let alarm = alarms.first(where: { $0.id == alarmID }), alarm.enabled {
-                try await scheduler.schedule(alarm, fireDate: alarm.time.nextFireDate())
-            }
-        } catch {
-            lastErrorMessage = error.localizedDescription
-        }
+    func alarm(for id: UUID) -> Alarm? {
+        alarms.first { $0.id == id }
     }
 
-    func snoozeCurrentAlarm() async {
-        guard
-            case .ringing(let alarmID) = runtimeState,
-            let alarm = alarms.first(where: { $0.id == alarmID })
-        else { return }
-
-        do {
-            try await scheduler.stop(alarmID: alarmID)
-            await audioPlayer.stop()
-
-            let snoozeUntil = Date().addingTimeInterval(alarm.snooze.duration)
-            runtimeState = .snoozed(until: snoozeUntil, alarmID: alarmID)
-            try await scheduler.schedule(alarm, fireDate: snoozeUntil)
-        } catch {
-            lastErrorMessage = error.localizedDescription
-        }
-    }
+    // MARK: - Ringing flow
 
     func presentRingingAlarm(_ alarmID: UUID) async {
         guard alarms.contains(where: { $0.id == alarmID }) else { return }
+        snoozeCounts[alarmID] = 0
         runtimeState = .ringing(alarmID: alarmID)
 
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
@@ -157,9 +152,115 @@ final class AlarmCoordinator {
         }
     }
 
-    func alarm(for id: UUID) -> Alarm? {
-        alarms.first { $0.id == id }
+    func beginSnooze() {
+        guard case .ringing(let alarmID) = runtimeState, let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
+
+        if let maxSnoozes = alarm.snooze.maxSnoozes, (snoozeCounts[alarmID] ?? 0) >= maxSnoozes {
+            beginTurnOff()
+            return
+        }
+
+        startMission(alarmID: alarmID, action: .snooze, configuration: alarm.snooze.mission)
     }
+
+    func beginTurnOff() {
+        guard case .ringing(let alarmID) = runtimeState, let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
+        startMission(alarmID: alarmID, action: .turnOff, configuration: alarm.turnOffMission)
+    }
+
+    private func startMission(alarmID: UUID, action: MissionAction, configuration: MissionConfiguration) {
+        Task { await audioPlayer.stop() }
+        currentMissionSession = missionCoordinator.makeSession(for: configuration)
+        runtimeState = .runningMission(alarmID: alarmID, action: action)
+    }
+
+    func missionFinished(_ result: MissionResult) {
+        guard case .runningMission(let alarmID, let action) = runtimeState else { return }
+        currentMissionSession = nil
+
+        switch result {
+        case .completed:
+            Task {
+                switch action {
+                case .snooze:
+                    await performSnooze(alarmID: alarmID)
+                case .turnOff:
+                    await performTurnOff(alarmID: alarmID)
+                }
+            }
+        case .failed(let reason):
+            lastErrorMessage = reason
+            runtimeState = .ringing(alarmID: alarmID)
+            if let alarm = alarms.first(where: { $0.id == alarmID }) {
+                try? audioPlayer.playAlarmSound(alarm.sound)
+            }
+        case .cancelled:
+            runtimeState = .ringing(alarmID: alarmID)
+            if let alarm = alarms.first(where: { $0.id == alarmID }) {
+                try? audioPlayer.playAlarmSound(alarm.sound)
+            }
+        }
+    }
+
+    func acknowledgeSnoozeConfirmation() {
+        guard case .snoozed = runtimeState else { return }
+        currentQuote = nil
+    }
+
+    func finishMorningComplete() {
+        guard case .morningComplete = runtimeState else { return }
+        runtimeState = .idle
+        currentQuote = nil
+    }
+
+    private func performSnooze(alarmID: UUID) async {
+        guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
+
+        do {
+            snoozeCounts[alarmID, default: 0] += 1
+            let snoozeUntil = Date().addingTimeInterval(alarm.snooze.duration)
+            try await scheduler.schedule(alarm, fireDate: snoozeUntil)
+            currentQuote = await quoteCoordinator.quote(for: .snoozed)
+            runtimeState = .snoozed(until: snoozeUntil, alarmID: alarmID)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+            runtimeState = .ringing(alarmID: alarmID)
+        }
+    }
+
+    private func performTurnOff(alarmID: UUID) async {
+        do {
+            try await scheduler.stop(alarmID: alarmID)
+
+            guard var alarm = alarms.first(where: { $0.id == alarmID }) else {
+                runtimeState = .idle
+                return
+            }
+
+            if alarm.enabled {
+                if alarm.recurrence.isRepeating {
+                    try await scheduler.schedule(alarm, fireDate: nil)
+                } else {
+                    alarm.enabled = false
+                    try await repository.save(alarm)
+                    if let index = alarms.firstIndex(where: { $0.id == alarmID }) {
+                        alarms[index] = alarm
+                    }
+                }
+            }
+
+            await wakeUpCoordinator.cancelPending(forOriginalAlarmID: alarmID)
+            await wakeUpCoordinator.schedule(for: alarm)
+
+            currentQuote = await quoteCoordinator.quote(for: .alarmCompleted)
+            runtimeState = .morningComplete(alarmID: alarmID)
+        } catch {
+            lastErrorMessage = error.localizedDescription
+            runtimeState = .idle
+        }
+    }
+
+    // MARK: - Persistence + scheduling
 
     private func saveAndSchedule(_ alarm: Alarm) async {
         do {
@@ -184,7 +285,9 @@ final class AlarmCoordinator {
                 guard authorizationGranted else {
                     throw AlarmCoordinatorError.authorizationDenied
                 }
-                try await scheduler.schedule(alarm, fireDate: alarm.time.nextFireDate())
+                try await scheduler.schedule(alarm, fireDate: nil)
+            } else {
+                await wakeUpCoordinator.cancelPending(forOriginalAlarmID: alarm.id)
             }
         } catch {
             lastErrorMessage = error.localizedDescription
@@ -196,7 +299,7 @@ final class AlarmCoordinator {
 
         for alarm in alarms where alarm.enabled {
             do {
-                try await scheduler.schedule(alarm, fireDate: alarm.time.nextFireDate())
+                try await scheduler.schedule(alarm, fireDate: nil)
             } catch {
                 lastErrorMessage = error.localizedDescription
             }
@@ -213,15 +316,47 @@ final class AlarmCoordinator {
         }
     }
 
-    private func syncAlertingAlarms() async {
-        let alertingIDs = await scheduler.alertingAlarmIDs()
+    private func isCurrentAlarm(_ id: UUID) -> Bool {
+        switch runtimeState {
+        case .idle:
+            return false
+        case .gentleWake(let alarmID), .ringing(let alarmID), .snoozed(_, let alarmID), .morningComplete(let alarmID):
+            return alarmID == id
+        case .runningMission(let alarmID, _):
+            return alarmID == id
+        }
+    }
 
-        if let first = alertingIDs.first {
-            if case .ringing(let currentID) = runtimeState, currentID == first {
+    private func syncAlertingAlarms() async {
+        let knownAlarmIDs = Set(alarms.map(\.id))
+
+        let alertingIDs = await scheduler.alertingAlarmIDs()
+        if let alertingID = alertingIDs.first(where: { knownAlarmIDs.contains($0) }) {
+            if case .ringing(let currentID) = runtimeState, currentID == alertingID {
                 return
             }
-            await presentRingingAlarm(first)
+            if case .runningMission(let currentID, _) = runtimeState, currentID == alertingID {
+                return
+            }
+            await presentRingingAlarm(alertingID)
             return
+        }
+
+        let countdownIDs = await scheduler.countdownAlarmIDs()
+        if let countdownID = countdownIDs.first(where: { knownAlarmIDs.contains($0) }) {
+            if case .gentleWake(let currentID) = runtimeState, currentID == countdownID {
+                return
+            }
+            if case .idle = runtimeState, let alarm = alarms.first(where: { $0.id == countdownID }) {
+                runtimeState = .gentleWake(alarmID: countdownID)
+                try? audioPlayer.playGentleWake(alarm.sound, rampDuration: alarm.gentleWake.duration)
+            }
+            return
+        }
+
+        if case .gentleWake = runtimeState {
+            runtimeState = .idle
+            await audioPlayer.stop()
         }
 
         if case .ringing = runtimeState {

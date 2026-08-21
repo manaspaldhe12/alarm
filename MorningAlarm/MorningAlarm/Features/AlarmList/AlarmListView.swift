@@ -2,8 +2,11 @@ import SwiftUI
 
 struct AlarmListView: View {
     @Bindable var coordinator: AlarmCoordinator
+    let qrCodeRepository: QRCodeRepository
+
     @State private var showingEditor = false
     @State private var editingAlarm: Alarm?
+    @State private var showingQRSetup = false
 
     var body: some View {
         NavigationStack {
@@ -42,6 +45,13 @@ struct AlarmListView: View {
             }
             .navigationTitle("Alarms")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingQRSetup = true
+                    } label: {
+                        Image(systemName: "qrcode")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editingAlarm = nil
@@ -54,12 +64,16 @@ struct AlarmListView: View {
             .sheet(isPresented: $showingEditor) {
                 AlarmEditorView(
                     alarm: editingAlarm,
+                    qrCodeRepository: qrCodeRepository,
                     onSave: { alarm in
                         Task {
                             await coordinator.updateAlarm(alarm)
                         }
                     }
                 )
+            }
+            .sheet(isPresented: $showingQRSetup) {
+                QRSetupView(repository: qrCodeRepository)
             }
             .overlay(alignment: .bottom) {
                 if let message = coordinator.lastErrorMessage {
@@ -88,7 +102,7 @@ struct AlarmRowView: View {
                     .font(.system(size: 42, weight: .light, design: .rounded))
                     .monospacedDigit()
 
-                Text(alarm.label)
+                Text("\(alarm.label) · \(alarm.recurrence.summary)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -108,5 +122,6 @@ struct AlarmRowView: View {
 }
 
 #Preview {
-    AlarmListView(coordinator: AppDependencyContainer.make().alarmCoordinator)
+    let container = AppDependencyContainer.make()
+    AlarmListView(coordinator: container.alarmCoordinator, qrCodeRepository: container.qrCodeRepository)
 }

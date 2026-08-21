@@ -1,13 +1,15 @@
 # Morning Alarm
 
-An offline-first iOS alarm app focused on helping you get out of bed. This is **v0.0** — a basic alarm with local scheduling, snooze, and turn-off.
+An offline-first iOS alarm app focused on helping you get out of bed, not just defeat an alarm. Covers description.md's full MVP scope: recurring alarms, gentle wake-up, step/QR/chess missions for snooze/turn-off/wake-up-check, motivational quotes, and an optional post-alarm app trigger.
 
 ## Requirements
 
-- **Mac** with **Xcode 26** or later
+- **Mac** with **Xcode 26** or later (AlarmKit is an iOS 26 SDK framework — it will not compile on older Xcode versions, including Xcode 14)
 - **iPhone** running **iOS 26** or later
 - **Apple Developer account** (free or paid) for device installation
 - **AlarmKit entitlement** from Apple (see below)
+
+> **Note on this codebase:** this was written without access to Xcode 26/the iOS 26 SDK, so none of it has been compiler-verified. The architecture and logic are deliberate, but expect a handful of build errors on first compile — mainly around exact AlarmKit API shapes (`Alarm.Schedule.Relative`, `Alarm.CountdownDuration`'s `preAlert` parameter, and the `Alarm.State` case names used for the gentle-wake countdown) since those couldn't be checked against the real SDK. Build it once on a machine with Xcode 26 and fix whatever the compiler flags before relying on it as an alarm.
 
 ## Project location
 
@@ -67,26 +69,42 @@ AlarmKit requires an Apple-granted entitlement. Without it, alarms will not sche
 2. Lock your phone or switch to another app.
 3. When the alarm fires, use the system alarm UI or open the app for the in-app **Snooze** / **Turn Off** screen.
 
-## v0.0 features
+## Current features
 
-- Create, edit, enable/disable, and delete alarms
+- Create, edit, enable/disable, delete, and **repeat** alarms (weekdays / weekends / every day / custom days)
 - Default bundled alarm sound (`default_alarm.wav`)
 - Alarm fires via **AlarmKit** (works offline, when locked, without the app open)
-- Basic alarm screen with **Snooze** and **Turn Off**
-- Local JSON persistence (alarms survive app restart)
+- **Gentle wake-up**: a configurable pre-alarm volume ramp via AlarmKit's pre-alert countdown (best-effort in the background; guaranteed once the app is foregrounded)
+- **Missions** for snooze, turn-off, and wake-up check, independently configurable per alarm:
+  - **Steps** — CoreMotion/`CMPedometer`-backed, with anti-cheat (minimum elapsed time + max plausible step rate to reject shaking)
+  - **QR code** — register a code anywhere in your home, scan it on-device (AVFoundation) to complete
+  - **Chess puzzle** — bundled, fully offline puzzle set (`Resources/Puzzles/puzzles.json`), rating-range selectable, validated locally
+- **Wake-up check** — a second, independently-scheduled check after a configurable delay, survives app relaunch
+- **Motivational quotes** — bundled, categorized, shown after snooze / turn-off / wake-up check, no immediate repeats
+- **Post-alarm app trigger** — optional "Open Calendar/Weather/etc." after turning off, never required to dismiss
+- Local JSON persistence (alarms, QR registrations, and pending wake-up checks all survive app restart)
 - Widget extension for AlarmKit snooze countdown UI
 
-## Architecture (v0.0)
+## Architecture
 
 ```text
-SwiftUI UI
+SwiftUI UI (Features/)
     ↓
-AlarmCoordinator
+AlarmCoordinator · MissionCoordinator · QuoteCoordinator · WakeUpCoordinator  (Application/)
     ↓
-AlarmRepository + AlarmScheduler
+Alarm / Mission / Chess / QR / Quotes / WakeUp domain models  (Domain/)
     ↓
-File storage + AlarmKit
+AlarmKitScheduler · PedometerStepCounter · QRScannerView · LocalChessEngine ·
+BundledPuzzleRepository · BundledQuoteRepository · File-backed repositories  (Infrastructure/)
 ```
+
+The alarm engine only ever knows it needs a `Mission`; it never knows whether that mission is steps, a QR code, or a chess puzzle — see design.md §28 for the reasoning.
+
+## Known simplifications (by design, not bugs)
+
+- The chess "engine" validates a user's move against the puzzle's known solution sequence rather than implementing full chess legality (checks, pins, stalemate). See the comment in `Infrastructure/Chess/ChessEngine.swift`.
+- Gentle wake-up audio is guaranteed only when the app is foregrounded during the countdown; AlarmKit's own full-volume alert at the real alarm time is what's guaranteed regardless.
+- The wake-up check reuses the same AlarmKit alert configuration (with Snooze/Turn Off buttons) as a real alarm, rather than a dedicated simpler alert type.
 
 ## Troubleshooting
 
@@ -100,8 +118,9 @@ File storage + AlarmKit
 
 ## Next milestones
 
-See `milestones.md` for the full roadmap. Up next:
+See `milestones.md` for the full roadmap. v0.1 through v0.11 (recurring alarms, gentle wake, all three mission types, snooze/turn-off wiring, quotes, wake-up check, post-alarm app trigger) are implemented. Not yet done:
 
-- **v0.1** — Recurring alarms (weekdays, weekends, custom)
-- **v0.2** — Chess puzzle missions
-- **v0.3** — Step-count missions
+- **v0.12** — Reliability hardening across device-locked / terminated / reboot / DST / timezone-change scenarios, plus the automated test suite description.md §21 calls for
+- **v0.13** — Alarm history & basic statistics
+- **v0.14** — Named difficulty presets (Easy/Medium/Hard)
+- **v0.15+** — Mission sequences, morning routines, widgets/App Intents/Siri beyond the existing snooze-countdown widget

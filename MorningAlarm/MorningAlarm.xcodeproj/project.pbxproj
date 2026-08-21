@@ -31,6 +31,49 @@
 		B10000000000000000000016 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = P10000000000000000000002 /* MorningAlarmWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B10000000000000000000017 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* MorningAlarmMetadata.swift */; };
 		B10000000000000000000018 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000019 /* MorningAlarmMetadata.swift */; };
+		B10000000000000000000019 /* Weekday.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* Weekday.swift */; };
+		B10000000000000000000020 /* Recurrence.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* Recurrence.swift */; };
+		B10000000000000000000021 /* MissionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* MissionType.swift */; };
+		B10000000000000000000022 /* MissionConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* MissionConfiguration.swift */; };
+		B10000000000000000000023 /* MissionResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* MissionResult.swift */; };
+		B10000000000000000000024 /* MissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* MissionRunner.swift */; };
+		B10000000000000000000025 /* MissionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* MissionSession.swift */; };
+		B10000000000000000000026 /* StepValidationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* StepValidationEngine.swift */; };
+		B10000000000000000000027 /* StepMissionRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000028 /* StepMissionRunner.swift */; };
+		B10000000000000000000028 /* MissionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000029 /* MissionCoordinator.swift */; };
+		B10000000000000000000029 /* StepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000030 /* StepCounter.swift */; };
+		B10000000000000000000030 /* PedometerStepCounter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* PedometerStepCounter.swift */; };
+		B10000000000000000000031 /* MissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* MissionView.swift */; };
+		B10000000000000000000032 /* QRCodeRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000033 /* QRCodeRegistration.swift */; };
+		B10000000000000000000033 /* QRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000034 /* QRCodeRepository.swift */; };
+		B10000000000000000000034 /* FileQRCodeRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000035 /* FileQRCodeRepository.swift */; };
+		B10000000000000000000035 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000036 /* QRScannerView.swift */; };
+		B10000000000000000000036 /* QRMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000037 /* QRMissionContentView.swift */; };
+		B10000000000000000000037 /* QRSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000038 /* QRSetupView.swift */; };
+		B10000000000000000000038 /* ChessPiece.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000039 /* ChessPiece.swift */; };
+		B10000000000000000000039 /* ChessSquare.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000040 /* ChessSquare.swift */; };
+		B10000000000000000000040 /* ChessMove.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* ChessMove.swift */; };
+		B10000000000000000000041 /* ChessBoard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* ChessBoard.swift */; };
+		B10000000000000000000042 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* Puzzle.swift */; };
+		B10000000000000000000043 /* ChessEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* ChessEngine.swift */; };
+		B10000000000000000000044 /* PuzzleRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* PuzzleRepository.swift */; };
+		B10000000000000000000045 /* ChessBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ChessBoardView.swift */; };
+		B10000000000000000000046 /* ChessMissionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* ChessMissionContentView.swift */; };
+		B10000000000000000000047 /* Quote.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* Quote.swift */; };
+		B10000000000000000000048 /* QuoteRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000049 /* QuoteRepository.swift */; };
+		B10000000000000000000049 /* QuoteCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000050 /* QuoteCoordinator.swift */; };
+		B10000000000000000000050 /* PostAlarmAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000051 /* PostAlarmAction.swift */; };
+		B10000000000000000000051 /* ExternalAppLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000052 /* ExternalAppLauncher.swift */; };
+		B10000000000000000000052 /* quotes.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000053 /* quotes.json */; };
+		B10000000000000000000053 /* WakeUpCheckConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000054 /* WakeUpCheckConfiguration.swift */; };
+		B10000000000000000000054 /* GentleWakeConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000055 /* GentleWakeConfiguration.swift */; };
+		B10000000000000000000055 /* WakeUpCheckStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000056 /* WakeUpCheckStateStore.swift */; };
+		B10000000000000000000056 /* WakeUpCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000057 /* WakeUpCoordinator.swift */; };
+		B10000000000000000000057 /* SnoozedConfirmationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* SnoozedConfirmationView.swift */; };
+		B10000000000000000000058 /* MorningCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* MorningCompleteView.swift */; };
+		B10000000000000000000059 /* WakeUpCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* WakeUpCheckView.swift */; };
+		B10000000000000000000060 /* MissionConfigurationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MissionConfigurationPicker.swift */; };
+		B10000000000000000000061 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* puzzles.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +128,49 @@
 		F10000000000000000000019 /* MorningAlarmMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningAlarmMetadata.swift; sourceTree = "<group>"; };
 		P10000000000000000000001 /* MorningAlarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MorningAlarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		P10000000000000000000002 /* MorningAlarmWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MorningAlarmWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F10000000000000000000020 /* Weekday.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Weekday.swift; sourceTree = "<group>"; };
+		F10000000000000000000021 /* Recurrence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Recurrence.swift; sourceTree = "<group>"; };
+		F10000000000000000000022 /* MissionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionType.swift; sourceTree = "<group>"; };
+		F10000000000000000000023 /* MissionConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfiguration.swift; sourceTree = "<group>"; };
+		F10000000000000000000024 /* MissionResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionResult.swift; sourceTree = "<group>"; };
+		F10000000000000000000025 /* MissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionRunner.swift; sourceTree = "<group>"; };
+		F10000000000000000000026 /* MissionSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionSession.swift; sourceTree = "<group>"; };
+		F10000000000000000000027 /* StepValidationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepValidationEngine.swift; sourceTree = "<group>"; };
+		F10000000000000000000028 /* StepMissionRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepMissionRunner.swift; sourceTree = "<group>"; };
+		F10000000000000000000029 /* MissionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionCoordinator.swift; sourceTree = "<group>"; };
+		F10000000000000000000030 /* StepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepCounter.swift; sourceTree = "<group>"; };
+		F10000000000000000000031 /* PedometerStepCounter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PedometerStepCounter.swift; sourceTree = "<group>"; };
+		F10000000000000000000032 /* MissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionView.swift; sourceTree = "<group>"; };
+		F10000000000000000000033 /* QRCodeRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRegistration.swift; sourceTree = "<group>"; };
+		F10000000000000000000034 /* QRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000035 /* FileQRCodeRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileQRCodeRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000036 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		F10000000000000000000037 /* QRMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRMissionContentView.swift; sourceTree = "<group>"; };
+		F10000000000000000000038 /* QRSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRSetupView.swift; sourceTree = "<group>"; };
+		F10000000000000000000039 /* ChessPiece.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessPiece.swift; sourceTree = "<group>"; };
+		F10000000000000000000040 /* ChessSquare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessSquare.swift; sourceTree = "<group>"; };
+		F10000000000000000000041 /* ChessMove.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMove.swift; sourceTree = "<group>"; };
+		F10000000000000000000042 /* ChessBoard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoard.swift; sourceTree = "<group>"; };
+		F10000000000000000000043 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
+		F10000000000000000000044 /* ChessEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessEngine.swift; sourceTree = "<group>"; };
+		F10000000000000000000045 /* PuzzleRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000046 /* ChessBoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessBoardView.swift; sourceTree = "<group>"; };
+		F10000000000000000000047 /* ChessMissionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChessMissionContentView.swift; sourceTree = "<group>"; };
+		F10000000000000000000048 /* Quote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quote.swift; sourceTree = "<group>"; };
+		F10000000000000000000049 /* QuoteRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteRepository.swift; sourceTree = "<group>"; };
+		F10000000000000000000050 /* QuoteCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuoteCoordinator.swift; sourceTree = "<group>"; };
+		F10000000000000000000051 /* PostAlarmAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostAlarmAction.swift; sourceTree = "<group>"; };
+		F10000000000000000000052 /* ExternalAppLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalAppLauncher.swift; sourceTree = "<group>"; };
+		F10000000000000000000053 /* quotes.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = quotes.json; sourceTree = "<group>"; };
+		F10000000000000000000054 /* WakeUpCheckConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckConfiguration.swift; sourceTree = "<group>"; };
+		F10000000000000000000055 /* GentleWakeConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GentleWakeConfiguration.swift; sourceTree = "<group>"; };
+		F10000000000000000000056 /* WakeUpCheckStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckStateStore.swift; sourceTree = "<group>"; };
+		F10000000000000000000057 /* WakeUpCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCoordinator.swift; sourceTree = "<group>"; };
+		F10000000000000000000058 /* SnoozedConfirmationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnoozedConfirmationView.swift; sourceTree = "<group>"; };
+		F10000000000000000000059 /* MorningCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningCompleteView.swift; sourceTree = "<group>"; };
+		F10000000000000000000060 /* WakeUpCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeUpCheckView.swift; sourceTree = "<group>"; };
+		F10000000000000000000061 /* MissionConfigurationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionConfigurationPicker.swift; sourceTree = "<group>"; };
+		F10000000000000000000062 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +178,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
+							B10000000000000000000052 /* quotes.json in Resources */,
+				B10000000000000000000061 /* puzzles.json in Resources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		FR10000000000000000000002 /* Frameworks */ = {
@@ -137,7 +225,26 @@
 				F10000000000000000000014 /* MorningAlarmWidgets.swift */,
 				F10000000000000000000015 /* MorningAlarmWidgetsBundle.swift */,
 				F10000000000000000000018 /* Info.plist */,
-			);
+							G10000000000000000000015 /* Mission */,
+				F10000000000000000000029 /* MissionCoordinator.swift */,
+				G10000000000000000000016 /* Motion */,
+				G10000000000000000000017 /* MissionExperience */,
+				G10000000000000000000018 /* QR */,
+				G10000000000000000000019 /* QR */,
+				G10000000000000000000020 /* QRSetup */,
+				G10000000000000000000021 /* Chess */,
+				G10000000000000000000022 /* Chess */,
+				G10000000000000000000023 /* Quotes */,
+				G10000000000000000000024 /* Quotes */,
+				F10000000000000000000050 /* QuoteCoordinator.swift */,
+				G10000000000000000000025 /* ExternalApps */,
+				G10000000000000000000026 /* Quotes */,
+				G10000000000000000000027 /* WakeUp */,
+				F10000000000000000000057 /* WakeUpCoordinator.swift */,
+				G10000000000000000000028 /* MorningComplete */,
+				G10000000000000000000029 /* WakeUpCheck */,
+				G10000000000000000000030 /* Puzzles */,
+);
 			path = MorningAlarmWidgets;
 			sourceTree = "<group>";
 		};
@@ -146,7 +253,38 @@
 			children = (
 				P10000000000000000000001 /* MorningAlarm.app */,
 				P10000000000000000000002 /* MorningAlarmWidgets.appex */,
-			);
+							F10000000000000000000022 /* MissionType.swift */,
+				F10000000000000000000023 /* MissionConfiguration.swift */,
+				F10000000000000000000024 /* MissionResult.swift */,
+				F10000000000000000000025 /* MissionRunner.swift */,
+				F10000000000000000000026 /* MissionSession.swift */,
+				F10000000000000000000027 /* StepValidationEngine.swift */,
+				F10000000000000000000028 /* StepMissionRunner.swift */,
+				F10000000000000000000030 /* StepCounter.swift */,
+				F10000000000000000000031 /* PedometerStepCounter.swift */,
+				F10000000000000000000032 /* MissionView.swift */,
+				F10000000000000000000033 /* QRCodeRegistration.swift */,
+				F10000000000000000000036 /* QRScannerView.swift */,
+				F10000000000000000000037 /* QRMissionContentView.swift */,
+				F10000000000000000000038 /* QRSetupView.swift */,
+				F10000000000000000000039 /* ChessPiece.swift */,
+				F10000000000000000000040 /* ChessSquare.swift */,
+				F10000000000000000000041 /* ChessMove.swift */,
+				F10000000000000000000042 /* ChessBoard.swift */,
+				F10000000000000000000043 /* Puzzle.swift */,
+				F10000000000000000000044 /* ChessEngine.swift */,
+				F10000000000000000000045 /* PuzzleRepository.swift */,
+				F10000000000000000000046 /* ChessBoardView.swift */,
+				F10000000000000000000047 /* ChessMissionContentView.swift */,
+				F10000000000000000000048 /* Quote.swift */,
+				F10000000000000000000049 /* QuoteRepository.swift */,
+				F10000000000000000000052 /* ExternalAppLauncher.swift */,
+				F10000000000000000000053 /* quotes.json */,
+				F10000000000000000000054 /* WakeUpCheckConfiguration.swift */,
+				F10000000000000000000059 /* MorningCompleteView.swift */,
+				F10000000000000000000060 /* WakeUpCheckView.swift */,
+				F10000000000000000000062 /* puzzles.json */,
+);
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -171,7 +309,11 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000008 /* AlarmCoordinator.swift */,
-			);
+							F10000000000000000000020 /* Weekday.swift */,
+				F10000000000000000000021 /* Recurrence.swift */,
+				F10000000000000000000051 /* PostAlarmAction.swift */,
+				F10000000000000000000055 /* GentleWakeConfiguration.swift */,
+);
 			path = Application;
 			sourceTree = "<group>";
 		};
@@ -191,7 +333,10 @@
 				G10000000000000000000010 /* AlarmList */,
 				G10000000000000000000011 /* AlarmEditor */,
 				G10000000000000000000012 /* AlarmExperience */,
-			);
+							F10000000000000000000034 /* QRCodeRepository.swift */,
+				F10000000000000000000035 /* FileQRCodeRepository.swift */,
+				F10000000000000000000056 /* WakeUpCheckStateStore.swift */,
+);
 			path = Features;
 			sourceTree = "<group>";
 		};
@@ -199,7 +344,9 @@
 			isa = PBXGroup;
 			children = (
 				G10000000000000000000013 /* AppIntents */,
-			);
+							F10000000000000000000058 /* SnoozedConfirmationView.swift */,
+				F10000000000000000000061 /* MissionConfigurationPicker.swift */,
+);
 			path = System;
 			sourceTree = "<group>";
 		};
@@ -290,6 +437,118 @@
 			path = Sounds;
 			sourceTree = "<group>";
 		};
+		G10000000000000000000015 /* Mission */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Mission;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000016 /* Motion */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Motion;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000017 /* MissionExperience */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = MissionExperience;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000018 /* QR */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = QR;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000019 /* QR */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = QR;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000020 /* QRSetup */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = QRSetup;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000021 /* Chess */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Chess;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000022 /* Chess */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Chess;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000023 /* Quotes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Quotes;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000024 /* Quotes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Quotes;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000025 /* ExternalApps */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ExternalApps;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000026 /* Quotes */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Quotes;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000027 /* WakeUp */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = WakeUp;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000028 /* MorningComplete */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = MorningComplete;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000029 /* WakeUpCheck */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = WakeUpCheck;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000030 /* Puzzles */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Puzzles;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -373,7 +632,48 @@
 			files = (
 				B10000000000000000000012 /* default_alarm.wav in Resources */,
 				B10000000000000000000013 /* Assets.xcassets in Resources */,
-			);
+							B10000000000000000000019 /* Weekday.swift in Sources */,
+				B10000000000000000000020 /* Recurrence.swift in Sources */,
+				B10000000000000000000021 /* MissionType.swift in Sources */,
+				B10000000000000000000022 /* MissionConfiguration.swift in Sources */,
+				B10000000000000000000023 /* MissionResult.swift in Sources */,
+				B10000000000000000000024 /* MissionRunner.swift in Sources */,
+				B10000000000000000000025 /* MissionSession.swift in Sources */,
+				B10000000000000000000026 /* StepValidationEngine.swift in Sources */,
+				B10000000000000000000027 /* StepMissionRunner.swift in Sources */,
+				B10000000000000000000028 /* MissionCoordinator.swift in Sources */,
+				B10000000000000000000029 /* StepCounter.swift in Sources */,
+				B10000000000000000000030 /* PedometerStepCounter.swift in Sources */,
+				B10000000000000000000031 /* MissionView.swift in Sources */,
+				B10000000000000000000032 /* QRCodeRegistration.swift in Sources */,
+				B10000000000000000000033 /* QRCodeRepository.swift in Sources */,
+				B10000000000000000000034 /* FileQRCodeRepository.swift in Sources */,
+				B10000000000000000000035 /* QRScannerView.swift in Sources */,
+				B10000000000000000000036 /* QRMissionContentView.swift in Sources */,
+				B10000000000000000000037 /* QRSetupView.swift in Sources */,
+				B10000000000000000000038 /* ChessPiece.swift in Sources */,
+				B10000000000000000000039 /* ChessSquare.swift in Sources */,
+				B10000000000000000000040 /* ChessMove.swift in Sources */,
+				B10000000000000000000041 /* ChessBoard.swift in Sources */,
+				B10000000000000000000042 /* Puzzle.swift in Sources */,
+				B10000000000000000000043 /* ChessEngine.swift in Sources */,
+				B10000000000000000000044 /* PuzzleRepository.swift in Sources */,
+				B10000000000000000000045 /* ChessBoardView.swift in Sources */,
+				B10000000000000000000046 /* ChessMissionContentView.swift in Sources */,
+				B10000000000000000000047 /* Quote.swift in Sources */,
+				B10000000000000000000048 /* QuoteRepository.swift in Sources */,
+				B10000000000000000000049 /* QuoteCoordinator.swift in Sources */,
+				B10000000000000000000050 /* PostAlarmAction.swift in Sources */,
+				B10000000000000000000051 /* ExternalAppLauncher.swift in Sources */,
+				B10000000000000000000053 /* WakeUpCheckConfiguration.swift in Sources */,
+				B10000000000000000000054 /* GentleWakeConfiguration.swift in Sources */,
+				B10000000000000000000055 /* WakeUpCheckStateStore.swift in Sources */,
+				B10000000000000000000056 /* WakeUpCoordinator.swift in Sources */,
+				B10000000000000000000057 /* SnoozedConfirmationView.swift in Sources */,
+				B10000000000000000000058 /* MorningCompleteView.swift in Sources */,
+				B10000000000000000000059 /* WakeUpCheckView.swift in Sources */,
+				B10000000000000000000060 /* MissionConfigurationPicker.swift in Sources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		R10000000000000000000002 /* Resources */ = {
@@ -497,6 +797,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -524,6 +825,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -545,6 +847,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MorningAlarmWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -568,6 +871,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = MorningAlarmWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
