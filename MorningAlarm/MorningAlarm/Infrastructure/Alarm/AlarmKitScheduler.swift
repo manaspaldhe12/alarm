@@ -1,3 +1,4 @@
+import ActivityKit
 import AlarmKit
 import Foundation
 import SwiftUI
@@ -45,7 +46,7 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             title: "Good morning",
             stopButton: stopButton,
             secondaryButton: snoozeButton,
-            secondaryButtonBehavior: .snooze
+            secondaryButtonBehavior: .countdown
         )
 
         let attributes = AlarmAttributes<MorningAlarmMetadata>(
@@ -62,8 +63,8 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
         let sound = AlertConfiguration.AlertSound.named(alarm.sound.fileName)
 
         let configuration = Configuration(
-            schedule: schedule,
             countdownDuration: countdownDuration,
+            schedule: schedule,
             attributes: attributes,
             sound: sound
         )
