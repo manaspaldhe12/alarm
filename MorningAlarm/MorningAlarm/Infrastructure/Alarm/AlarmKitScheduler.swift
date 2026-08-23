@@ -81,9 +81,10 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
     }
 
     func alertingAlarmIDs() async -> [UUID] {
-        manager.alarms.compactMap { scheduled in
+        let alarms = (try? manager.alarms) ?? []
+        return alarms.compactMap { scheduled in
             switch scheduled.state {
-            case .alert:
+            case .alerting:
                 return scheduled.id
             default:
                 return nil
@@ -92,7 +93,8 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
     }
 
     func countdownAlarmIDs() async -> [UUID] {
-        manager.alarms.compactMap { scheduled in
+        let alarms = (try? manager.alarms) ?? []
+        return alarms.compactMap { scheduled in
             switch scheduled.state {
             case .countdown:
                 return scheduled.id
