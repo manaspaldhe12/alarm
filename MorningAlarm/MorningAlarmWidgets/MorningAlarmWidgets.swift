@@ -19,8 +19,8 @@ struct MorningAlarmLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     switch context.state.mode {
-                    case .countdown:
-                        Text(timerInterval: context.state.timerInterval, countsDown: true)
+                    case .countdown(let countdown):
+                        Text(timerInterval: Date.now...countdown.fireDate, countsDown: true)
                             .monospacedDigit()
                     case .alert:
                         Text("Now")
@@ -34,8 +34,8 @@ struct MorningAlarmLiveActivity: Widget {
                 Image(systemName: "alarm.fill")
             } compactTrailing: {
                 switch context.state.mode {
-                case .countdown:
-                    Text(timerInterval: context.state.timerInterval, countsDown: true)
+                case .countdown(let countdown):
+                    Text(timerInterval: Date.now...countdown.fireDate, countsDown: true)
                         .monospacedDigit()
                 default:
                     Image(systemName: "bell.fill")
@@ -76,8 +76,8 @@ private struct MorningAlarmLockScreenView: View {
             Spacer()
 
             switch context.state.mode {
-            case .countdown:
-                Text(timerInterval: context.state.timerInterval, countsDown: true)
+            case .countdown(let countdown):
+                Text(timerInterval: Date.now...countdown.fireDate, countsDown: true)
                     .font(.title2.monospacedDigit())
             case .alert:
                 Image(systemName: "sun.max.fill")
