@@ -2,7 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>com.apple.developer.alarmkit</key>
-	<true/>
+	<!--
+	AlarmKit needs no entitlement — just NSAlarmKitUsageDescription in Info.plist
+	and a runtime AlarmManager.requestAuthorization() call, the same shape as
+	Camera/Location/Motion permissions. `com.apple.developer.alarmkit` used to be
+	declared here; it isn't a real Apple entitlement (see README.md's AlarmKit
+	setup section) and, per a developer forum report, an unrecognized entitlement
+	key like that can actually make Xcode reject the provisioning profile on a
+	real device build. Left empty on purpose — add real entitlements here only if
+	a future feature genuinely needs one (e.g. push notifications, app groups).
+	-->
 </dict>
 </plist>

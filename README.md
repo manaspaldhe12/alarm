@@ -1,15 +1,16 @@
 # Morning Alarm
 
+[![Build installable IPA](https://github.com/manaspaldhe12/alarm/actions/workflows/build-ipa.yml/badge.svg)](https://github.com/manaspaldhe12/alarm/actions/workflows/build-ipa.yml)
+
 An offline-first iOS alarm app focused on helping you get out of bed, not just defeat an alarm. Covers description.md's full MVP scope: recurring alarms, gentle wake-up, step/QR/chess missions for snooze/turn-off/wake-up-check, motivational quotes, and an optional post-alarm app trigger.
 
 ## Requirements
 
-- **Mac** with **Xcode 26** or later (AlarmKit is an iOS 26 SDK framework — it will not compile on older Xcode versions, including Xcode 14)
-- **iPhone** running **iOS 26** or later
-- **Apple Developer account** (free or paid) for device installation
-- **AlarmKit entitlement** from Apple (see below)
+- **iPhone** running **iOS 26** or later.
+- **Apple Developer account** — a free Apple ID is enough, for either install path below. AlarmKit needs no paid Developer Program membership, no special entitlement, and no Apple approval (see "AlarmKit setup" below) — the $99/yr program only matters if you later want App Store/TestFlight distribution or a feature that's genuinely gated (this app doesn't use any).
+- To install: either **a Mac with Xcode 26+** (Option B/C below), or **any computer** (Mac or Windows, no Xcode needed) to run a sideloading tool once (Option A below) — see "Install on your iPhone".
 
-> **Note on this codebase:** this was written without access to Xcode 26/the iOS 26 SDK, so the iOS-framework-dependent code (AlarmKit, CoreMotion, AVFoundation, UIKit, SwiftUI-on-iOS, the `Observation` macro) has not been compiler-verified. It has, however, been genuinely validated where it's possible to on non-Apple-SDK tooling: the entire domain/business-logic layer (recurrence math, the chess board/move/engine, step anti-cheat, mission configuration, file-backed repositories) and the full `AlarmCoordinator`/`WakeUpCoordinator`/`MissionCoordinator` state machine were compiled and *executed* for real against a stripped (Observation-free) copy on this machine's Swift 5.7 toolchain, catching and fixing several real bugs (see `MorningAlarmTests/` below — those are the same tests, ported to real XCTest). Expect a handful of build errors on first Xcode 26 compile regardless — mainly around exact AlarmKit API shapes (`Alarm.Schedule.Relative`, `Alarm.CountdownDuration`'s `preAlert` parameter, and the `Alarm.State` case names used for the gentle-wake countdown) since those couldn't be checked against the real SDK.
+> **Note on this codebase:** this was originally written without access to Xcode 26/the iOS 26 SDK, so the iOS-framework-dependent code (AlarmKit, CoreMotion, AVFoundation, UIKit, SwiftUI-on-iOS, the `Observation` macro) wasn't compiler-verified at the time. That's since changed: [`.github/workflows/build-ipa.yml`](.github/workflows/build-ipa.yml) now compiles and runs the full test suite against a real Xcode 26/iOS 26 SDK on every push to `main` — check the [Actions tab](https://github.com/manaspaldhe12/alarm/actions) or the badge below for current status. Before that CI existed, the non-Apple-SDK-dependent portions were validated the hard way: the entire domain/business-logic layer (recurrence math, the chess board/move/engine, step anti-cheat, mission configuration, file-backed repositories) and the full `AlarmCoordinator`/`WakeUpCoordinator`/`MissionCoordinator` state machine were compiled and *executed* for real against a stripped (Observation-free) copy on a local Swift 5.7 toolchain, catching and fixing several real bugs — see `MorningAlarmTests/` for the same tests ported to real XCTest.
 
 ## Project location
 
@@ -24,23 +25,55 @@ MorningAlarm/MorningAlarm.xcodeproj
 1. Open `MorningAlarm.xcodeproj` in Xcode.
 2. Select the **MorningAlarm** project in the navigator, then the **MorningAlarm** target.
 3. Open **Signing & Capabilities**.
-4. Set **Team** to your Apple Developer team.
+4. Set **Team** to your Apple ID (a free personal team is fine — see "AlarmKit setup" below).
 5. Change **Bundle Identifier** if needed (default: `com.morningalarm.app`).
 6. Repeat for the **MorningAlarmWidgets** target (`com.morningalarm.app.widgets`).
-7. Confirm **AlarmKit** appears under Capabilities. If not, click **+ Capability** and add **AlarmKit**.
 
-### AlarmKit entitlement
+### AlarmKit setup
 
-AlarmKit requires an Apple-granted entitlement. Without it, alarms will not schedule even if the user grants permission.
+AlarmKit needs **no Xcode capability, no entitlement, and no Apple approval** — it's a runtime-permission framework like Camera or Location, not a managed/restricted one. All it needs:
 
-1. In [Apple Developer](https://developer.apple.com/account/resources/identifiers/list), register your app ID with the AlarmKit capability.
-2. Request AlarmKit access if prompted by Apple.
-3. Regenerate your provisioning profile after the entitlement is approved.
-4. In Xcode, ensure the **MorningAlarm.entitlements** file is linked (it should be automatic).
+1. `NSAlarmKitUsageDescription` in `Info.plist` (already present in this project).
+2. A call to `AlarmManager.shared.requestAuthorization()` at runtime, which shows a normal system permission prompt (already wired up in `AlarmKitScheduler`).
+
+Don't add an "AlarmKit" capability under Signing & Capabilities or a `com.apple.developer.alarmkit` entitlement — that key isn't real. It was mistakenly added to this project early on (a known pattern of LLM-fabricated entitlements — see [this Apple Developer Forums thread](https://developer.apple.com/forums/thread/797950), where an Apple engineer flagged the exact same fake entitlement causing exactly this kind of confusion), and per that thread, an unrecognized entitlement key like that can make Xcode reject your provisioning profile on a real device. `MorningAlarm.entitlements` is now intentionally empty.
+
+If you hit an actual AlarmKit-related build/signing error, treat it as a real bug to investigate on its own terms rather than reaching for an entitlement — nothing in this app should need one.
 
 ## Install on your iPhone
 
-### Option A: Direct USB install (recommended for development)
+### Option A: Without Xcode — sideload the CI-built .ipa (free)
+
+Every push to `main` runs [`.github/workflows/build-ipa.yml`](.github/workflows/build-ipa.yml): a GitHub Actions macOS runner with a real Xcode 26 install builds the app, runs the full `MorningAlarmTests` suite, and publishes an **unsigned** `.ipa` to a rolling `latest` release:
+
+```text
+https://github.com/manaspaldhe12/alarm/releases/download/latest/MorningAlarm.ipa
+```
+
+("Unsigned" here just means CI doesn't hold any Apple credentials — no certificate, provisioning profile, or Apple ID ever touches GitHub Actions. The sideloading tools below strip whatever signature is present and re-sign with your own identity regardless, so a CI-side signature would be pointless complexity.)
+
+You still need **some** computer (Mac or Windows, old or new — it does not need to run Xcode) to do the one-time pairing these tools require; after that, installs/updates can happen straight from your iPhone.
+
+**Using Sideloadly** (simpler, manual refresh every 7 days):
+
+1. Install [Sideloadly](https://sideloadly.io/) on any Mac or Windows computer.
+2. Download `MorningAlarm.ipa` from the link above.
+3. Connect your iPhone by USB, unlock it, and trust the computer if prompted.
+4. Open Sideloadly, drag `MorningAlarm.ipa` into it, select your device, enter your (free) Apple ID and password when prompted.
+5. Click **Start**. Sideloadly signs the app with a certificate generated from your Apple ID and installs it.
+6. On your iPhone: **Settings → General → VPN & Device Management**, tap your Apple ID under "Developer App", tap **Trust**.
+7. A **free** Apple ID's signature expires after **7 days** — after that the app won't open until you repeat steps 2–6 with a fresh `.ipa` from the same URL (it's always the latest build).
+
+**Using AltStore** (a bit more setup, then refreshes itself over Wi-Fi):
+
+1. Install [AltServer](https://altstore.io/) on a companion Mac or Windows computer and AltStore on your iPhone through it (AltStore's site walks through both — this is a one-time pairing step).
+2. Sign in with your free Apple ID when AltServer prompts for it.
+3. In AltStore on your iPhone, use **My Apps → +** and pick a downloaded `MorningAlarm.ipa`, or add a custom source pointing at the releases feed if you want in-app updates.
+4. Same 7-day free-tier limit applies, but AltServer/AltStore will try to auto-refresh the app in the background over Wi-Fi as long as AltServer is reachable (i.e. your companion computer is on and on the same network periodically) — less manual upkeep than Sideloadly once it's set up.
+
+Either way, sideloaded apps are capped at **3 apps signed under a free Apple ID at once** — remove old test builds if you hit that limit.
+
+### Option B: Direct USB install via Xcode (needs a Mac that can run Xcode 26)
 
 1. Connect your iPhone to your Mac with a USB cable.
 2. Unlock the phone and tap **Trust** if prompted.
@@ -51,7 +84,7 @@ AlarmKit requires an Apple-granted entitlement. Without it, alarms will not sche
    - Tap your developer profile and choose **Trust**
 6. Launch **Morning Alarm** again from the home screen.
 
-### Option B: Wireless debugging
+### Option C: Wireless debugging (also needs Xcode)
 
 1. Connect via USB once and enable **Connect via network** in Xcode’s **Devices and Simulators** window.
 2. Select your phone wirelessly from the device menu and press **Run**.
@@ -121,7 +154,7 @@ The alarm engine only ever knows it needs a `Mission`; it never knows whether th
 | Problem | What to try |
 |--------|-------------|
 | “Failed to code sign” | Set your Team under Signing & Capabilities for both targets |
-| Alarms don’t schedule | Check AlarmKit entitlement approval and alarm permission in Settings |
+| Alarms don’t schedule | Check the Alarms permission in Settings; confirm `MorningAlarm.entitlements` has no stray `com.apple.developer.alarmkit` key (it isn't real — see "AlarmKit setup" above) |
 | App won’t open after install | Trust the developer certificate in Settings |
 | Build fails on AlarmKit APIs | Use Xcode 26+ and iOS 26 SDK |
 | No sound | Confirm `default_alarm.wav` is in the app bundle (Resources/Sounds) |

@@ -1,0 +1,114 @@
+name: Build installable IPA
+
+# Builds MorningAlarm on a real Xcode 26 / iOS 26 SDK runner (something no
+# machine in this project's local development loop can currently do), runs
+# the MorningAlarmTests suite against a real simulator, then packages an
+# UNSIGNED .ipa and publishes it as a release asset.
+#
+# The .ipa is deliberately unsigned: no Apple ID, certificate, or
+# provisioning profile ever needs to be stored as a CI secret. Sideloading
+# tools (AltStore, Sideloadly) strip whatever signature is present and
+# re-sign locally with your own free Apple ID anyway, so shipping a signed
+# build here would be wasted complexity. See README.md > "Installing
+# without Xcode" for the install steps.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-26
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26"
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Find an available iOS simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          data = json.load(sys.stdin)
+          for runtime, devices in data["devices"].items():
+              if "iOS" not in runtime:
+                  continue
+              for d in devices:
+                  if d["name"].startswith("iPhone"):
+                      print(d["udid"])
+                      sys.exit(0)
+          sys.exit("no iPhone simulator found")
+          ')
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Run unit tests
+        run: |
+          xcodebuild test \
+            -project MorningAlarm/MorningAlarm.xcodeproj \
+            -scheme MorningAlarm \
+            -destination "id=${{ steps.sim.outputs.udid }}"
+
+      - name: Build unsigned app
+        run: |
+          xcodebuild build \
+            -project MorningAlarm/MorningAlarm.xcodeproj \
+            -scheme MorningAlarm \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER=""
+
+      - name: Package .ipa
+        run: |
+          set -euo pipefail
+          APP_PATH="build/Build/Products/Release-iphoneos/MorningAlarm.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "::error::Could not find MorningAlarm.app at $APP_PATH"
+            find build/Build/Products -maxdepth 3
+            exit 1
+          fi
+          mkdir -p ipa_root/Payload
+          cp -R "$APP_PATH" ipa_root/Payload/
+          (cd ipa_root && zip -qr ../MorningAlarm.ipa Payload)
+          echo "Built: $(du -h MorningAlarm.ipa | cut -f1) MorningAlarm.ipa"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MorningAlarm-ipa
+          path: MorningAlarm.ipa
+          retention-days: 90
+
+      - name: Publish "latest" release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest build (unsigned — sideload with AltStore/Sideloadly)"
+          make_latest: true
+          body: |
+            Auto-built from `${{ github.sha }}`.
+
+            This `.ipa` is **unsigned** on purpose — install it by resigning locally
+            with your own free Apple ID via AltStore or Sideloadly. No Apple account
+            credentials of any kind are involved in producing this build.
+
+            See README.md → "Installing without Xcode" for step-by-step instructions.
+          files: MorningAlarm.ipa
