@@ -60,7 +60,7 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             postAlert: alarm.snooze.duration
         )
         let schedule = alarmKitSchedule(for: alarm, fireDate: fireDate)
-        let sound = AlertConfiguration.AlertSound.named(alarm.sound.fileName)
+        let sound = AlertConfiguration.AlertSound.named(alarm.sound.fileNameWithExtension)
 
         let configuration = Configuration(
             countdownDuration: countdownDuration,
