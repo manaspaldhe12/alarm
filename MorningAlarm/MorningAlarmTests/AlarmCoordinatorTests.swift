@@ -11,14 +11,17 @@ final class AlarmCoordinatorTests: XCTestCase {
         let appLauncher: FakeExternalAppLauncher
     }
 
-    func makeHarness(quotes: [Quote] = [Quote(id: "q1", text: "Get up.", category: .general)]) -> Harness {
+    func makeHarness(
+        quotes: [Quote] = [Quote(id: "q1", text: "Get up.", category: .general)],
+        stepCounter: StepCounter = FakeStepCounter()
+    ) -> Harness {
         let scheduler = FakeAlarmScheduler()
         let audioPlayer = FakeAlarmAudioPlayer()
         let repository = FakeAlarmRepository()
         let appLauncher = FakeExternalAppLauncher()
 
         let missionCoordinator = MissionCoordinator(
-            stepCounter: FakeStepCounter(),
+            stepCounter: stepCounter,
             qrCodeRepository: FakeQRCodeRepository(),
             puzzleRepository: FakePuzzleRepository(),
             chessEngine: LocalChessEngine()
@@ -27,7 +30,7 @@ final class AlarmCoordinatorTests: XCTestCase {
         let wakeUpCoordinator = WakeUpCoordinator(
             scheduler: scheduler,
             missionCoordinator: missionCoordinator,
-            stateStore: WakeUpCheckStateStore(fileURL: tempFileURL("wakeup-in-alarm-test"))
+            stateStore: WakeUpCheckStateStore(fileURL: tempFileURL("wakeup-in-alarm-test-\(UUID().uuidString)"))
         )
 
         let coordinator = AlarmCoordinator(
@@ -276,6 +279,158 @@ final class AlarmCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(h.coordinator.wakeUpCoordinator.pendingCheckIDs.count, 0)
         XCTAssertFalse(h.coordinator.alarm(for: alarm.id)?.enabled ?? true)
+    }
+
+    // MARK: - Snooze/turn-off with each real mission type
+    //
+    // The tests above mostly use `.none` for speed/simplicity. These exercise the same
+    // beginSnooze()/beginTurnOff() flow with steps, QR, and chess actually configured, since
+    // that's where a mismatch between AlarmCoordinator and a specific mission type would show
+    // up (e.g. wrong MissionConfiguration case reaching the wrong runner, or a completed/failed
+    // interactive session not being picked up correctly). QR and chess are "interactive"
+    // missions with no runner — their real completion logic lives in QRMissionContentView's
+    // handleDetection(_:) and ChessMissionContentView's handleTap(_:), calling
+    // session.complete()/session.fail(reason:) directly (see design.md §28) — not unit-testable
+    // without a SwiftUI view-testing setup, so these drive the session the same way those views
+    // do, to test everything downstream of that decision instead: AlarmCoordinator's own
+    // handling of the mission result.
+
+    func testBeginTurnOffWithStepsMissionCompletesRealistically() async throws {
+        // MissionCoordinator.makeSession doesn't expose overriding
+        // StepMissionRunner's production defaults (minimumElapsedTime: 8s,
+        // maximumStepsPerSecond: 4.0 -- see StepMissionRunner.swift), unlike
+        // the standalone runner test in MissionCoordinatorTests.swift which
+        // constructs one directly with short test-only values. Going through
+        // the real AlarmCoordinator/MissionCoordinator path like a real
+        // turn-off would, this test is stuck with those real defaults, so it
+        // genuinely takes ~9 real seconds -- that's the price of proving the
+        // actual production pipeline (not a shortcut) completes end to end.
+        let stepCounter = FakeStepCounter()
+        stepCounter.realDelayBetweenUpdatesNanoseconds = 900_000_000 // 900ms/step -> ~1.1 steps/sec, under the 4/sec cap
+        let start = Date()
+        stepCounter.scriptedUpdates = (0...10).map { i in
+            StepUpdate(timestamp: start.addingTimeInterval(Double(i) * 0.9), cumulativeSteps: i)
+        }
+
+        let h = makeHarness(stepCounter: stepCounter)
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 10)
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.currentMissionSession?.configuration, .steps(count: 10))
+        h.coordinator.currentMissionSession?.start()
+
+        // 10 steps * 900ms + minimumElapsedTime's 8s floor means this needs
+        // well over waitForMissionResult's 2s budget -- poll directly here
+        // instead, up to 15s.
+        var resolved = false
+        for _ in 0..<600 {
+            guard case .runningMission = h.coordinator.runtimeState else {
+                resolved = true
+                break
+            }
+            if let result = h.coordinator.currentMissionSession?.result {
+                h.coordinator.missionFinished(result)
+            }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        XCTAssertTrue(resolved, "timed out waiting for the real step mission to resolve")
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("expected .morningComplete after the steps mission genuinely completes, got \(h.coordinator.runtimeState)")
+            return
+        }
+    }
+
+    func testBeginTurnOffWithQRMissionCompletes() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .qrCode(codeID: nil)
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.currentMissionSession?.configuration, .qrCode(codeID: nil))
+
+        // Simulates QRMissionContentView.handleDetection(_:) finding a matching registration.
+        h.coordinator.currentMissionSession?.complete()
+        try await waitForMissionResult(h)
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("expected .morningComplete after the QR mission completes, got \(h.coordinator.runtimeState)")
+            return
+        }
+    }
+
+    func testBeginTurnOffWithQRMissionFailureReturnsToRinging() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .qrCode(codeID: nil)
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        // Simulates a scan that couldn't be verified (handleDetection's catch branch) — unlike
+        // an unmatched code, which the view just re-prompts on without failing the session, a
+        // hard failure is reported through session.fail(reason:).
+        h.coordinator.currentMissionSession?.fail(reason: "Couldn't verify that code. Try again.")
+        h.coordinator.missionFinished(.failed(reason: "Couldn't verify that code. Try again."))
+
+        XCTAssertEqual(h.coordinator.runtimeState, .ringing(alarmID: alarm.id))
+        XCTAssertEqual(h.coordinator.lastErrorMessage, "Couldn't verify that code. Try again.")
+    }
+
+    func testBeginTurnOffWithChessMissionCompletes() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .chessPuzzle(minRating: 600, maxRating: 900, puzzleCount: 1)
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.currentMissionSession?.configuration, .chessPuzzle(minRating: 600, maxRating: 900, puzzleCount: 1))
+
+        // Simulates ChessMissionContentView.startPuzzle(at:) calling session.complete() once
+        // every puzzle in the set has been solved (solvedMoveCount driven by the real
+        // LocalChessEngine, already covered in ChessTests.swift).
+        h.coordinator.currentMissionSession?.complete()
+        try await waitForMissionResult(h)
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("expected .morningComplete after the chess mission completes, got \(h.coordinator.runtimeState)")
+            return
+        }
+    }
+
+    func testBeginSnoozeWithChessMissionCompletesAndSchedulesSnooze() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.snooze = SnoozeConfiguration(
+            durationMinutes: 5,
+            mission: .chessPuzzle(minRating: 600, maxRating: 900, puzzleCount: 1),
+            maxSnoozes: nil
+        )
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginSnooze()
+        XCTAssertEqual(h.coordinator.currentMissionSession?.configuration, .chessPuzzle(minRating: 600, maxRating: 900, puzzleCount: 1))
+
+        h.coordinator.currentMissionSession?.complete()
+        try await waitForMissionResult(h)
+
+        guard case .snoozed = h.coordinator.runtimeState else {
+            XCTFail("expected .snoozed after the chess snooze-mission completes, got \(h.coordinator.runtimeState)")
+            return
+        }
+        XCTAssertNotNil(h.scheduler.scheduledCalls.last?.fireDate, "snoozing must always be a one-shot fireDate override")
     }
 
     func testFinishMorningCompleteReturnsToIdle() async throws {
