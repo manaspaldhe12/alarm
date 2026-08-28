@@ -31,6 +31,7 @@ final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
 
     func alertingAlarmIDs() async -> [UUID] { Array(alerting) }
     func countdownAlarmIDs() async -> [UUID] { Array(countdown) }
+    func debugState(for alarmID: UUID) async -> String? { nil }
 }
 
 final class FakeAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {

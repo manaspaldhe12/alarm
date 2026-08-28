@@ -7,6 +7,7 @@ struct AlarmListView: View {
     @State private var showingEditor = false
     @State private var editingAlarm: Alarm?
     @State private var showingQRSetup = false
+    @State private var debugStates: [UUID: String] = [:]
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,7 @@ struct AlarmListView: View {
                         ForEach(coordinator.alarms) { alarm in
                             AlarmRowView(
                                 alarm: alarm,
+                                debugState: debugStates[alarm.id],
                                 onToggle: { enabled in
                                     Task {
                                         await coordinator.setEnabled(enabled, for: alarm.id)
@@ -41,6 +43,17 @@ struct AlarmListView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
+                }
+            }
+            .task {
+                // Diagnostics only: periodically ask the real scheduler what
+                // it actually believes about each alarm, so "is this really
+                // scheduled?" is answerable without a device console.
+                while !Task.isCancelled {
+                    for alarm in coordinator.alarms {
+                        debugStates[alarm.id] = await coordinator.debugState(for: alarm.id)
+                    }
+                    try? await Task.sleep(for: .seconds(3))
                 }
             }
             .navigationTitle("Alarms")
@@ -92,6 +105,7 @@ struct AlarmListView: View {
 
 struct AlarmRowView: View {
     let alarm: Alarm
+    var debugState: String?
     let onToggle: (Bool) -> Void
     let onTap: () -> Void
 
@@ -105,6 +119,12 @@ struct AlarmRowView: View {
                 Text("\(alarm.label) · \(alarm.recurrence.summary)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+
+                if alarm.enabled {
+                    Text("AlarmKit: \(debugState ?? "not scheduled")")
+                        .font(.caption2)
+                        .foregroundStyle(debugState == nil ? .red : .secondary)
+                }
             }
 
             Spacer()

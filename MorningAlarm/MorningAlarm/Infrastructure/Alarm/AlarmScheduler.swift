@@ -17,4 +17,12 @@ protocol AlarmScheduler: Sendable {
     /// scheduled with `GentleWakeConfiguration.enabled` and past their
     /// countdown start but not yet at the full alert.
     func countdownAlarmIDs() async -> [UUID]
+
+    /// Debug-only: whatever the underlying scheduler itself currently
+    /// believes about this alarm's state (e.g. AlarmKit's raw `Alarm.State`
+    /// description), or `nil` if it has no record of this ID at all. Not
+    /// meant to be parsed -- purely for surfacing in a diagnostics UI when
+    /// something isn't firing as expected and there's no other way to see
+    /// what the system alarm daemon actually has scheduled.
+    func debugState(for alarmID: UUID) async -> String?
 }

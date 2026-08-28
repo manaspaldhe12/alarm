@@ -104,6 +104,17 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
         }
     }
 
+    func debugState(for alarmID: UUID) async -> String? {
+        guard let scheduled = (try? manager.alarms)?.first(where: { $0.id == alarmID }) else {
+            return nil
+        }
+        // Deliberately not switching on specific cases here -- this exists
+        // precisely because we don't have full confidence in every
+        // `AlarmKit.Alarm.State` case name, and a generic description is
+        // safer than guessing wrong ones for a diagnostics-only string.
+        return String(describing: scheduled.state)
+    }
+
     /// - `fireDate` provided: a one-shot override (used for snoozing).
     /// - `fireDate` nil, repeating alarm: a native weekly-repeating AlarmKit schedule.
     /// - `fireDate` nil, one-time alarm: the next matching one-shot occurrence.

@@ -113,7 +113,11 @@ final class AlarmCoordinator {
 
     func deleteAlarm(id: UUID) async {
         do {
-            try await scheduler.cancel(alarmID: id)
+            // Best-effort: the alarm may have already fired and been
+            // auto-removed by AlarmKit (non-repeating alarms), or never been
+            // successfully scheduled in the first place. Either way, that's
+            // not a reason to abort deleting it from our own records.
+            try? await scheduler.cancel(alarmID: id)
             await wakeUpCoordinator.cancelPending(forOriginalAlarmID: id)
             try await repository.delete(id: id)
             alarms.removeAll { $0.id == id }
@@ -139,6 +143,12 @@ final class AlarmCoordinator {
 
     func alarm(for id: UUID) -> Alarm? {
         alarms.first { $0.id == id }
+    }
+
+    /// Debug-only passthrough to the scheduler's raw state for this alarm —
+    /// see `AlarmScheduler.debugState(for:)`.
+    func debugState(for alarmID: UUID) async -> String? {
+        await scheduler.debugState(for: alarmID)
     }
 
     // MARK: - Ringing flow
@@ -286,7 +296,11 @@ final class AlarmCoordinator {
                 return lhs.time.hour < rhs.time.hour
             }
 
-            try await scheduler.cancel(alarmID: alarm.id)
+            // Best-effort cleanup of any prior schedule for this ID (there
+            // usually isn't one for a brand-new alarm) -- must never block
+            // the actual schedule() call below, since that's the one that
+            // matters.
+            try? await scheduler.cancel(alarmID: alarm.id)
 
             if alarm.enabled {
                 guard authorizationGranted else {
