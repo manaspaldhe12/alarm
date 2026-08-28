@@ -723,8 +723,7 @@
 				BLF0000000000000000000060 /* puzzles.json in Resources */,
 				BLF0000000000000000000061 /* quotes.json in Resources */,
 				BLF0000000000000000000062 /* default_alarm.wav in Resources */,
-							BLF0000000000000000000079 /* TestMissionView.swift in Sources */,
-);
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		RES0000000000000000000002 /* Resources */ = {
@@ -807,6 +806,7 @@
 				BLF0000000000000000000058 /* QRScannerView.swift in Sources */,
 				BLF0000000000000000000059 /* QuoteRepository.swift in Sources */,
 				BLF0000000000000000000063 /* OpenAlarmIntent.swift in Sources */,
+				BLF0000000000000000000079 /* TestMissionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
