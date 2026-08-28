@@ -32,6 +32,11 @@ struct AlarmListView: View {
                                 onTap: {
                                     editingAlarm = alarm
                                     showingEditor = true
+                                },
+                                onTestRingNow: {
+                                    Task {
+                                        await coordinator.presentRingingAlarm(alarm.id)
+                                    }
                                 }
                             )
                         }
@@ -108,6 +113,7 @@ struct AlarmRowView: View {
     var debugState: String?
     let onToggle: (Bool) -> Void
     let onTap: () -> Void
+    var onTestRingNow: (() -> Void)?
 
     var body: some View {
         HStack {
@@ -138,6 +144,15 @@ struct AlarmRowView: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
         .padding(.vertical, 4)
+        .contextMenu {
+            if let onTestRingNow {
+                Button {
+                    onTestRingNow()
+                } label: {
+                    Label("Test Ring Now", systemImage: "bell.badge")
+                }
+            }
+        }
     }
 }
 

@@ -12,6 +12,13 @@ protocol AlarmAudioPlayer: Sendable {
 }
 
 final class LocalAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
+    /// We have no way to play iOS's actual built-in alarm tone ourselves
+    /// outside of AlarmKit's own alert mechanism (`.systemDefault` there
+    /// maps to `AlertConfiguration.AlertSound.default`) -- this bundled
+    /// file is the closest local approximation for our own AVAudioPlayer-
+    /// driven playback (the custom ringing screen, the gentle-wake ramp).
+    private static let fallbackFileName = "default_alarm"
+
     private var player: AVAudioPlayer?
 
     func playAlarmSound(_ sound: AlarmSoundConfiguration) throws {
@@ -21,8 +28,9 @@ final class LocalAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
         try session.setCategory(.playback, mode: .default, options: [.duckOthers])
         try session.setActive(true)
 
-        guard let url = Bundle.main.url(forResource: sound.fileName, withExtension: "wav") else {
-            throw AlarmAudioError.soundNotFound(sound.fileName)
+        let fileName = Self.localPlaybackFileName(for: sound)
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: "wav") else {
+            throw AlarmAudioError.soundNotFound(fileName)
         }
 
         let player = try AVAudioPlayer(contentsOf: url)
@@ -39,8 +47,9 @@ final class LocalAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
         try session.setCategory(.playback, mode: .default, options: [.duckOthers])
         try session.setActive(true)
 
-        guard let url = Bundle.main.url(forResource: sound.fileName, withExtension: "wav") else {
-            throw AlarmAudioError.soundNotFound(sound.fileName)
+        let fileName = Self.localPlaybackFileName(for: sound)
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: "wav") else {
+            throw AlarmAudioError.soundNotFound(fileName)
         }
 
         let player = try AVAudioPlayer(contentsOf: url)
@@ -60,6 +69,15 @@ final class LocalAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
         player?.stop()
         player = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
+    private static func localPlaybackFileName(for sound: AlarmSoundConfiguration) -> String {
+        switch sound {
+        case .systemDefault:
+            return fallbackFileName
+        case .bundled(let fileName):
+            return fileName
+        }
     }
 }
 
