@@ -3,10 +3,13 @@ import SwiftUI
 struct AlarmListView: View {
     @Bindable var coordinator: AlarmCoordinator
     let qrCodeRepository: QRCodeRepository
+    let missionCoordinator: MissionCoordinator
+    let stepCounter: StepCounter
 
     @State private var showingEditor = false
     @State private var editingAlarm: Alarm?
     @State private var showingQRSetup = false
+    @State private var showingTestMissions = false
     @State private var debugStates: [UUID: String] = [:]
 
     var body: some View {
@@ -70,6 +73,13 @@ struct AlarmListView: View {
                         Image(systemName: "qrcode")
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingTestMissions = true
+                    } label: {
+                        Image(systemName: "testtube.2")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editingAlarm = nil
@@ -89,6 +99,9 @@ struct AlarmListView: View {
                         }
                     }
                 )
+            }
+            .sheet(isPresented: $showingTestMissions) {
+                TestMissionView(missionCoordinator: missionCoordinator, stepCounter: stepCounter)
             }
             .sheet(isPresented: $showingQRSetup) {
                 QRSetupView(repository: qrCodeRepository)
@@ -158,5 +171,10 @@ struct AlarmRowView: View {
 
 #Preview {
     let container = AppDependencyContainer.make()
-    AlarmListView(coordinator: container.alarmCoordinator, qrCodeRepository: container.qrCodeRepository)
+    AlarmListView(
+        coordinator: container.alarmCoordinator,
+        qrCodeRepository: container.qrCodeRepository,
+        missionCoordinator: container.missionCoordinator,
+        stepCounter: container.stepCounter
+    )
 }

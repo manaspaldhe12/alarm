@@ -9,7 +9,8 @@ struct MorningAlarmApp: App {
             RootView(
                 coordinator: container.alarmCoordinator,
                 missionCoordinator: container.missionCoordinator,
-                qrCodeRepository: container.qrCodeRepository
+                qrCodeRepository: container.qrCodeRepository,
+                stepCounter: container.stepCounter
             )
             .task {
                 await container.alarmCoordinator.start()
@@ -22,10 +23,16 @@ struct RootView: View {
     @Bindable var coordinator: AlarmCoordinator
     let missionCoordinator: MissionCoordinator
     let qrCodeRepository: QRCodeRepository
+    let stepCounter: StepCounter
 
     var body: some View {
         ZStack {
-            AlarmListView(coordinator: coordinator, qrCodeRepository: qrCodeRepository)
+            AlarmListView(
+                coordinator: coordinator,
+                qrCodeRepository: qrCodeRepository,
+                missionCoordinator: missionCoordinator,
+                stepCounter: stepCounter
+            )
 
             runtimeOverlay
                 .zIndex(1)
