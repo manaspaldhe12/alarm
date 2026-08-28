@@ -55,9 +55,14 @@ struct StepValidationEngine {
             return acceptedSteps
         }
 
+        // A delta with zero or negative elapsed time (duplicate/out-of-order
+        // pedometer timestamps) is exactly as suspicious as one that's too
+        // fast — reject it rather than silently skipping the cadence check
+        // entirely, which is what happened here before: `elapsed > 0` being
+        // false made the whole `if` condition false, falling straight
+        // through to accepting the delta with no rate check applied at all.
         let elapsed = update.timestamp.timeIntervalSince(previous.timestamp)
-        if elapsed > 0, Double(rawDelta) / elapsed > maximumStepsPerSecond {
-            // Implausibly fast for walking — likely the phone being shaken.
+        guard elapsed > 0, Double(rawDelta) / elapsed <= maximumStepsPerSecond else {
             lastUpdate = update
             return acceptedSteps
         }

@@ -60,6 +60,20 @@ final class StepValidationEngineTests: XCTestCase {
         XCTAssertEqual(accepted, 10, "a rejected burst should not erase previously accepted steps")
     }
 
+    func testRejectsPositiveDeltaWithNonPositiveElapsedTime() {
+        // Duplicate/out-of-order pedometer timestamps (same or earlier `timestamp` than the
+        // previous reading) used to bypass the cadence check entirely, since `elapsed > 0`
+        // being false made the whole "is this too fast" condition false rather than rejecting
+        // outright — meaning an arbitrarily large delta could sneak through uncapped.
+        var engine = StepValidationEngine(minimumElapsedTime: 1, maximumStepsPerSecond: 4.0)
+        let start = Date()
+        engine.start(at: start)
+        _ = engine.accept(StepUpdate(timestamp: start, cumulativeSteps: 0))
+        // Same timestamp as the baseline reading, but a big step jump.
+        let accepted = engine.accept(StepUpdate(timestamp: start, cumulativeSteps: 999))
+        XCTAssertEqual(accepted, 0, "a positive step delta with zero elapsed time should be rejected, not accepted uncapped")
+    }
+
     func testIgnoresNonIncreasingCumulativeCounts() {
         var engine = StepValidationEngine(minimumElapsedTime: 1, maximumStepsPerSecond: 4.0)
         let start = Date()
