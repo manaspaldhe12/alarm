@@ -12,6 +12,10 @@ struct AlarmListView: View {
     @State private var showingTestMissions = false
     @State private var debugStates: [UUID: String] = [:]
 
+    /// A fixed, stable id for the editor sheet's "New Alarm" case — see the
+    /// `.id(...)` on the sheet below.
+    private static let newAlarmSheetID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+
     var body: some View {
         NavigationStack {
             Group {
@@ -99,6 +103,17 @@ struct AlarmListView: View {
                         }
                     }
                 )
+                // Without an explicit identity, SwiftUI can reuse this sheet's
+                // @State storage across separate presentations (e.g. "New
+                // Alarm" defaulting to 7 AM, then editing some other,
+                // disabled alarm afterward) since it's structurally the same
+                // view each time -- keying on which alarm (or "new", a fixed
+                // sentinel -- NOT a freshly-generated UUID, which would
+                // recompute on every body re-render and reset in-progress
+                // form state constantly) is being edited forces a fresh
+                // @State init from the actual alarm's saved time every time,
+                // matching AlarmEditorView.init's own (already-correct) logic.
+                .id(editingAlarm?.id ?? AlarmListView.newAlarmSheetID)
             }
             .sheet(isPresented: $showingTestMissions) {
                 TestMissionView(missionCoordinator: missionCoordinator, stepCounter: stepCounter)
