@@ -211,9 +211,17 @@ final class AlarmCoordinator {
         startMission(alarmID: alarmID, action: .turnOff, configuration: alarm.turnOffMission)
     }
 
-    /// How soon a mission's "insurance" re-arm (see `startMission`) fires if
-    /// the mission is never actually finished.
-    static let missionInsuranceDelay: TimeInterval = 45
+    /// How far out each individual insurance re-arm (see `startMission`)
+    /// sets the alarm's next fire date.
+    static let missionInsuranceDelay: TimeInterval = 15
+    /// How often the insurance loop in `startMission` refreshes that fire
+    /// date while a mission is genuinely still in progress. Must be well
+    /// under `missionInsuranceDelay` so a legitimate, still-running mission
+    /// (the app alive and the user actually working on it) always renews
+    /// its cover before the previous fire date could ever arrive -- only an
+    /// app that's actually gone (force-quit, crashed, killed by the system)
+    /// lets a scheduled fire date go unrefreshed and actually arrive.
+    private static let missionInsuranceHeartbeat: TimeInterval = 8
 
     /// The alarm sound deliberately keeps playing through the whole mission
     /// attempt — silencing it here (as this used to do) removed the
@@ -245,16 +253,33 @@ final class AlarmCoordinator {
         // actually gets completed, but if the app dies before that, the
         // alarm would otherwise just stay silently dismissed with nothing
         // ever having been asked of the user -- defeating the entire point
-        // of gating dismissal behind a mission. Re-arming a one-shot fire a
-        // short time out means the alarm rings again regardless if nothing
-        // else happens; performSnooze/performTurnOff await and clear this
-        // Task before doing their own real (and final) scheduling, so their
-        // call is always the last word rather than racing this one.
+        // of gating dismissal behind a mission.
+        //
+        // The in-app mission sound itself (AlarmAudioPlayer) is ordinary
+        // app-process audio -- like any third-party app's, it cannot survive
+        // a real force-quit; no app can keep audio playing after the user
+        // swipes it away in the app switcher. What *can* survive that is
+        // AlarmKit's own native alert, since that's driven by the system,
+        // not this process. So rather than a single one-shot re-arm, this
+        // loops the whole time a mission is in progress, continually pushing
+        // the next native fire date `missionInsuranceDelay` out every
+        // `missionInsuranceHeartbeat`. As long as the app (and this Task)
+        // is alive, each refresh lands well before the previous fire date
+        // could ever arrive, so a legitimate in-progress mission never
+        // triggers a spurious extra alert. The moment the app actually dies,
+        // the most recent fire date is the last thing that got scheduled --
+        // bounding how long the alarm can stay silent to roughly
+        // `missionInsuranceDelay`, not indefinitely. performSnooze/
+        // performTurnOff cancel and await this Task before doing their own
+        // real (and final) scheduling, so their call is always the last
+        // word rather than racing this one.
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
-            let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
             insuranceTask = Task {
-                guard !Task.isCancelled else { return }
-                try? await scheduler.schedule(alarm, fireDate: insuranceDate)
+                while !Task.isCancelled {
+                    let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
+                    try? await scheduler.schedule(alarm, fireDate: insuranceDate)
+                    try? await Task.sleep(for: .seconds(Self.missionInsuranceHeartbeat))
+                }
             }
         }
     }
@@ -298,10 +323,12 @@ final class AlarmCoordinator {
         guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
 
         lastErrorMessage = nil
-        // Wait for (and clear) any in-flight insurance re-arm from
-        // startMission before our own real scheduling below -- otherwise
-        // the two race and the insurance call can land after this one and
-        // silently overwrite the snooze duration the user actually chose.
+        // Stop (it's a loop now, not a one-shot -- it never finishes on its
+        // own) and wait for startMission's insurance re-arm before our own
+        // real scheduling below -- otherwise the two race and a heartbeat
+        // iteration can land after this one and silently overwrite the
+        // snooze duration the user actually chose.
+        insuranceTask?.cancel()
         await insuranceTask?.value
         insuranceTask = nil
         do {
@@ -326,6 +353,7 @@ final class AlarmCoordinator {
         lastErrorMessage = nil
         // See performSnooze -- must happen before this method's own real
         // scheduling/cancelling below, for the same race-avoidance reason.
+        insuranceTask?.cancel()
         await insuranceTask?.value
         insuranceTask = nil
         do {
