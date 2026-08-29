@@ -77,6 +77,7 @@ final class AlarmCoordinator {
     }
 
     func refreshAuthorization() async {
+        lastErrorMessage = nil
         do {
             authorizationGranted = try await scheduler.requestAuthorizationIfNeeded()
             if !authorizationGranted {
@@ -112,6 +113,7 @@ final class AlarmCoordinator {
     }
 
     func deleteAlarm(id: UUID) async {
+        lastErrorMessage = nil
         do {
             // Best-effort: the alarm may have already fired and been
             // auto-removed by AlarmKit (non-repeating alarms), or never been
@@ -185,8 +187,14 @@ final class AlarmCoordinator {
         startMission(alarmID: alarmID, action: .turnOff, configuration: alarm.turnOffMission)
     }
 
+    /// The alarm sound deliberately keeps playing through the whole mission
+    /// attempt — silencing it here (as this used to do) removed the
+    /// motivation to actually finish quickly, which defeats the point of
+    /// gating dismissal behind a mission at all. It's only stopped once a
+    /// mission genuinely completes (see `performSnooze`/`performTurnOff`);
+    /// failing or cancelling a mission leaves it playing uninterrupted,
+    /// since it was never stopped to begin with.
     private func startMission(alarmID: UUID, action: MissionAction, configuration: MissionConfiguration) {
-        Task { await audioPlayer.stop() }
         currentMissionSession = missionCoordinator.makeSession(for: configuration)
         runtimeState = .runningMission(alarmID: alarmID, action: action)
     }
@@ -208,14 +216,8 @@ final class AlarmCoordinator {
         case .failed(let reason):
             lastErrorMessage = reason
             runtimeState = .ringing(alarmID: alarmID)
-            if let alarm = alarms.first(where: { $0.id == alarmID }) {
-                try? audioPlayer.playAlarmSound(alarm.sound)
-            }
         case .cancelled:
             runtimeState = .ringing(alarmID: alarmID)
-            if let alarm = alarms.first(where: { $0.id == alarmID }) {
-                try? audioPlayer.playAlarmSound(alarm.sound)
-            }
         }
     }
 
@@ -233,10 +235,12 @@ final class AlarmCoordinator {
     private func performSnooze(alarmID: UUID) async {
         guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
 
+        lastErrorMessage = nil
         do {
             snoozeCounts[alarmID, default: 0] += 1
             let snoozeUntil = Date().addingTimeInterval(alarm.snooze.duration)
             try await scheduler.schedule(alarm, fireDate: snoozeUntil)
+            await audioPlayer.stop()
             currentQuote = await quoteCoordinator.quote(for: .snoozed)
             runtimeState = .snoozed(until: snoozeUntil, alarmID: alarmID)
         } catch {
@@ -246,8 +250,10 @@ final class AlarmCoordinator {
     }
 
     private func performTurnOff(alarmID: UUID) async {
+        lastErrorMessage = nil
         do {
             try await scheduler.stop(alarmID: alarmID)
+            await audioPlayer.stop()
 
             guard var alarm = alarms.first(where: { $0.id == alarmID }) else {
                 runtimeState = .idle
@@ -280,6 +286,7 @@ final class AlarmCoordinator {
     // MARK: - Persistence + scheduling
 
     private func saveAndSchedule(_ alarm: Alarm) async {
+        lastErrorMessage = nil
         do {
             try await repository.save(alarm)
 

@@ -89,6 +89,21 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertNotNil(h.coordinator.lastErrorMessage)
     }
 
+    func testLastErrorMessageDoesNotOutliveASubsequentSuccess() async {
+        // Regression test for a stale "com.apple.AlarmKit.Alarm error 0" banner still showing
+        // for an alarm that had since scheduled successfully -- lastErrorMessage was only ever
+        // set on failure, never cleared on success, so any one failure anywhere in a session
+        // would show forever regardless of what happened afterward.
+        let h = makeHarness()
+        h.scheduler.authorizationResult = false
+        await h.coordinator.refreshAuthorization()
+        XCTAssertNotNil(h.coordinator.lastErrorMessage, "sanity check: authorization failure should set an error")
+
+        h.scheduler.authorizationResult = true
+        await h.coordinator.refreshAuthorization()
+        XCTAssertNil(h.coordinator.lastErrorMessage, "a subsequent successful operation must clear a previous error, not leave it displayed forever")
+    }
+
     func testPresentRingingAlarmPlaysSound() async throws {
         let h = makeHarness()
         await h.coordinator.refreshAuthorization()
@@ -111,11 +126,10 @@ final class AlarmCoordinatorTests: XCTestCase {
 
         h.coordinator.beginSnooze()
         XCTAssertEqual(h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .snooze))
-        // startMission stops the audio player via a detached, fire-and-forget Task (so
-        // beginSnooze/beginTurnOff can stay synchronous for plain SwiftUI button actions) —
-        // give it a beat to actually run before asserting on it.
-        try await Task.sleep(nanoseconds: 20_000_000)
-        XCTAssertEqual(h.audioPlayer.stopCount, 1, "the alarm sound should stop while a mission is in progress")
+        // The alarm sound deliberately keeps playing through the mission attempt now (stopping
+        // it here removed the motivation to actually finish) -- it should only stop once the
+        // mission genuinely completes, asserted below.
+        XCTAssertEqual(h.audioPlayer.stopCount, 0, "the alarm sound must not stop just because a mission started")
 
         try await waitForMissionResult(h)
 
@@ -125,6 +139,7 @@ final class AlarmCoordinatorTests: XCTestCase {
         }
         XCTAssertEqual(snoozedAlarmID, alarm.id)
         XCTAssertGreaterThan(until, Date())
+        XCTAssertEqual(h.audioPlayer.stopCount, 1, "the alarm sound should stop once the mission actually completes")
         XCTAssertNotNil(h.coordinator.currentQuote, "a quote should be shown after a successful snooze")
         XCTAssertEqual(h.scheduler.scheduledCalls.last?.alarm.id, alarm.id)
         XCTAssertNotNil(h.scheduler.scheduledCalls.last?.fireDate, "snoozing must use a one-shot fireDate override, not the alarm's own recurring schedule")
@@ -221,7 +236,10 @@ final class AlarmCoordinatorTests: XCTestCase {
         h.coordinator.missionFinished(.cancelled)
 
         XCTAssertEqual(h.coordinator.runtimeState, .ringing(alarmID: alarm.id))
-        XCTAssertEqual(h.audioPlayer.playedSounds.count, 2, "cancelling a mission should resume the alarm sound (played once on ring, once on resume)")
+        // The sound was never stopped when the mission started, so cancelling has nothing to
+        // resume -- it should have played exactly once, from the initial ring.
+        XCTAssertEqual(h.audioPlayer.playedSounds.count, 1, "cancelling a mission should not need to restart the alarm sound, since it never stopped")
+        XCTAssertEqual(h.audioPlayer.stopCount, 0, "cancelling a mission must not stop the alarm sound")
     }
 
     func testDeleteAlarmCancelsSchedulerAndPendingWakeUpCheck() async {
