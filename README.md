@@ -132,6 +132,29 @@ These tests were developed against a stripped, Observation-free copy of the coor
 - Local JSON persistence (alarms, QR registrations, and pending wake-up checks all survive app restart)
 - Widget extension for AlarmKit snooze countdown UI
 
+## Expected behavior
+
+What should actually happen on-device, so you can tell a bug from something by design while testing.
+
+**When an alarm fires**
+- AlarmKit alerts at full system volume with the bundled sound (`default_alarm.wav`), even locked and offline.
+- Tapping either alert button (Snooze/Stop) opens the app straight into the matching mission — it does not silently stop the alarm the way a stock AlarmKit alert would, because both buttons are wired to open the app (`.custom` behavior + `stopIntent`/`secondaryIntent`) rather than letting AlarmKit handle them natively.
+- The alarm keeps ringing for the entire mission — it does not go silent just because you tapped a button or started the mission. It only stops once you actually finish (or fail out of) the mission.
+- **Volume can't be used to cheat**: turning the phone's volume down while an alarm is ringing or a mission is in progress gets forced back to max within moments (`VolumeForcer`). This is intentional — it's off during gentle wake-up's pre-alarm ramp (a deliberate soft build-up) and once you're actually done (snoozed confirmation shown / morning complete / idle).
+- If you force-quit the app mid-mission, a 45-second "insurance" timer re-arms the alarm so it can't be permanently silenced just by swiping the app away before finishing the mission. Finishing the mission (or reaching snooze/turn-off) before then cancels the insurance timer — it never fires on top of a legitimate completion.
+
+**Completing the mission**
+- **Snooze**: alarm re-arms for the configured snooze duration; you'll see a snoozed confirmation screen, then it rings again at the new time.
+- **Turn off**: a recurring alarm reschedules for its next occurrence; a one-time alarm disables itself. If the reschedule itself fails, the alarm falls back to disabled rather than claiming to still be armed with nothing actually scheduled.
+
+**Editing and relaunching**
+- Editing an existing alarm's time starts from that alarm's own scheduled time, not a hardcoded 7 AM — 7 AM is only the default for a brand-new alarm.
+- Relaunching the app (or backgrounding/foregrounding) never clobbers an alarm that's mid-snooze — its overridden fire time is preserved instead of being reset back to its regular schedule.
+- An error message shown for one action (save, delete, snooze, turn off, reload) always reflects that action's own latest outcome — it won't show a stale error left over from something else you did earlier.
+
+**Wake-up check**
+- Fires as a second, independent AlarmKit alert a configurable delay after the main alarm, with its own mission gate, and survives an app relaunch while pending.
+
 ## Architecture
 
 ```text
