@@ -25,7 +25,7 @@ enum MissionConfiguration: Codable, Equatable {
         case .steps(let count):
             return "Walk \(count) steps"
         case .qrCode(let codeID):
-            return codeID == nil ? "Scan any registered QR code" : "Scan a specific QR code"
+            return codeID == nil ? "Scan any registered code" : "Scan a specific code"
         case .chessPuzzle(let minRating, let maxRating, let puzzleCount):
             let puzzleWord = puzzleCount == 1 ? "puzzle" : "puzzles"
             return "Solve \(puzzleCount) \(puzzleWord) (\(minRating)–\(maxRating))"

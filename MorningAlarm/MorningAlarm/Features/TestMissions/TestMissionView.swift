@@ -33,7 +33,7 @@ struct TestMissionView: View {
                     Button {
                         start(title: "QR test", configuration: .qrCode(codeID: nil))
                     } label: {
-                        Label("QR Code", systemImage: "qrcode")
+                        Label("QR Code / Barcode", systemImage: "qrcode")
                     }
                     Button {
                         start(title: "Chess test", configuration: .chessPuzzle(minRating: 600, maxRating: 900, puzzleCount: 1))

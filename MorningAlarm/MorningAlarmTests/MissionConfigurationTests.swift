@@ -12,7 +12,7 @@ final class MissionConfigurationTests: XCTestCase {
     func testSummaries() {
         XCTAssertEqual(MissionConfiguration.none.summary, "No mission")
         XCTAssertEqual(MissionConfiguration.steps(count: 50).summary, "Walk 50 steps")
-        XCTAssertEqual(MissionConfiguration.qrCode(codeID: nil).summary, "Scan any registered QR code")
+        XCTAssertEqual(MissionConfiguration.qrCode(codeID: nil).summary, "Scan any registered code")
         XCTAssertEqual(MissionConfiguration.chessPuzzle(minRating: 600, maxRating: 800, puzzleCount: 1).summary, "Solve 1 puzzle (600–800)")
         XCTAssertEqual(MissionConfiguration.chessPuzzle(minRating: 800, maxRating: 1000, puzzleCount: 2).summary, "Solve 2 puzzles (800–1000)")
     }

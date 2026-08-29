@@ -15,7 +15,7 @@ struct QRSetupView: View {
                 Section {
                     Text("Where should your morning start?")
                         .font(.headline)
-                    Text("Put a QR code somewhere you want to go after waking up — the bathroom, kitchen, coffee machine, or front door.")
+                    Text("Put a QR code or barcode somewhere you want to go after waking up — the bathroom, kitchen, coffee machine, or front door.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -94,9 +94,11 @@ private struct QRRegistrationScanSheet: View {
         ZStack {
             QRScannerView(onDetect: onScanned)
                 .ignoresSafeArea()
+            ScannerFrameOverlay()
+                .ignoresSafeArea()
             VStack {
                 Spacer()
-                Text("Scan the QR code you want to register")
+                Text("Scan the QR code or barcode you want to register")
                     .padding()
                     .background(.ultraThinMaterial, in: Capsule())
                     .padding(.bottom, 40)

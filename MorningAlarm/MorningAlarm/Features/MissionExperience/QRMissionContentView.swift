@@ -4,7 +4,7 @@ struct QRMissionContentView: View {
     let session: MissionSession
     let repository: QRCodeRepository
 
-    @State private var statusMessage = "Scan your registered QR code"
+    @State private var statusMessage = "Scan your registered code"
     @State private var isChecking = false
 
     var body: some View {
@@ -13,8 +13,11 @@ struct QRMissionContentView: View {
                 .fill(Color.black)
                 .frame(height: 280)
                 .overlay(
-                    QRScannerView(onDetect: handleDetection)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                    ZStack {
+                        QRScannerView(onDetect: handleDetection)
+                        ScannerFrameOverlay()
+                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 )
                 .padding(.horizontal, 24)
 
