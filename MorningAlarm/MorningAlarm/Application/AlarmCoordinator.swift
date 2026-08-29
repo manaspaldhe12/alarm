@@ -187,6 +187,10 @@ final class AlarmCoordinator {
         startMission(alarmID: alarmID, action: .turnOff, configuration: alarm.turnOffMission)
     }
 
+    /// How soon a mission's "insurance" re-arm (see `startMission`) fires if
+    /// the mission is never actually finished.
+    static let missionInsuranceDelay: TimeInterval = 45
+
     /// The alarm sound deliberately keeps playing through the whole mission
     /// attempt — silencing it here (as this used to do) removed the
     /// motivation to actually finish quickly, which defeats the point of
@@ -197,6 +201,24 @@ final class AlarmCoordinator {
     private func startMission(alarmID: UUID, action: MissionAction, configuration: MissionConfiguration) {
         currentMissionSession = missionCoordinator.makeSession(for: configuration)
         runtimeState = .runningMission(alarmID: alarmID, action: action)
+
+        // Insurance against the app dying mid-mission (force-quit from the
+        // app switcher, a crash, iOS reclaiming memory, etc.): tapping
+        // Turn Off/Snooze on AlarmKit's own system alert appears to silence
+        // its native alert immediately, regardless of our custom
+        // stopIntent/secondaryIntent -- which only opens the app and never
+        // itself calls stop(). That's exactly right when the mission then
+        // actually gets completed, but if the app dies before that, the
+        // alarm would otherwise just stay silently dismissed with nothing
+        // ever having been asked of the user -- defeating the entire point
+        // of gating dismissal behind a mission. Re-arming a one-shot fire a
+        // short time out means the alarm rings again regardless if nothing
+        // else happens; performSnooze/performTurnOff overwrite or cancel
+        // this the moment the mission is genuinely finished.
+        if let alarm = alarms.first(where: { $0.id == alarmID }) {
+            let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
+            Task { try? await scheduler.schedule(alarm, fireDate: insuranceDate) }
+        }
     }
 
     func missionFinished(_ result: MissionResult) {
@@ -238,6 +260,11 @@ final class AlarmCoordinator {
         lastErrorMessage = nil
         do {
             snoozeCounts[alarmID, default: 0] += 1
+            // Explicitly stop the currently-alerting native alarm before
+            // rescheduling -- otherwise it's not confirmed whether
+            // installing a new fireDate on an already-alerting alarm alone
+            // reliably silences it.
+            try? await scheduler.stop(alarmID: alarmID)
             let snoozeUntil = Date().addingTimeInterval(alarm.snooze.duration)
             try await scheduler.schedule(alarm, fireDate: snoozeUntil)
             await audioPlayer.stop()
@@ -252,7 +279,20 @@ final class AlarmCoordinator {
     private func performTurnOff(alarmID: UUID) async {
         lastErrorMessage = nil
         do {
-            try await scheduler.stop(alarmID: alarmID)
+            // Both best-effort: the actual outcome we need -- disabled/
+            // reinstalled, sound stopped, user sees morning-complete --
+            // must not be blocked by AlarmKit's own stop()/cancel() failing,
+            // especially given each is a fallback for the other already.
+            try? await scheduler.stop(alarmID: alarmID)
+            // Belt-and-suspenders: there's a documented AlarmKit issue where
+            // a non-repeating alarm isn't fully cleared out after firing
+            // (https://developer.apple.com/forums/thread/796901), and stop()
+            // alone wasn't confirmed to reliably silence things either (see
+            // the insurance re-arm in startMission -- this cancel() also
+            // wipes that out, since a completed mission is exactly the case
+            // it must not fire for). Best-effort: must never block finishing
+            // the turn-off that matters.
+            try? await scheduler.cancel(alarmID: alarmID)
             await audioPlayer.stop()
 
             guard var alarm = alarms.first(where: { $0.id == alarmID }) else {
@@ -262,6 +302,7 @@ final class AlarmCoordinator {
 
             if alarm.enabled {
                 if alarm.recurrence.isRepeating {
+                    // cancel() above wiped the native recurring schedule too -- reinstall it.
                     try await scheduler.schedule(alarm, fireDate: nil)
                 } else {
                     alarm.enabled = false

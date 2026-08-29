@@ -187,8 +187,13 @@ final class AlarmCoordinatorTests: XCTestCase {
 
         let reloaded = try XCTUnwrap(h.coordinator.alarm(for: alarm.id))
         XCTAssertTrue(reloaded.enabled, "a repeating alarm should remain enabled after turn-off")
-        XCTAssertEqual(h.scheduler.scheduledCalls.last?.alarm.id, alarm.id)
-        XCTAssertNil(h.scheduler.scheduledCalls.last?.fireDate, "turning off a repeating alarm should reinstall its native recurring schedule (fireDate: nil)")
+        // Not .last: startMission's fire-and-forget "insurance" re-arm (see
+        // AlarmCoordinator) races with the mission completing, so a later
+        // scheduledCalls entry isn't guaranteed to be the actual reinstall.
+        XCTAssertTrue(
+            h.scheduler.scheduledCalls.contains(where: { $0.alarm.id == alarm.id && $0.fireDate == nil }),
+            "turning off a repeating alarm should reinstall its native recurring schedule (fireDate: nil) at some point"
+        )
     }
 
     func testTurnOffOnOneTimeAlarmDisablesIt() async throws {
@@ -240,6 +245,44 @@ final class AlarmCoordinatorTests: XCTestCase {
         // resume -- it should have played exactly once, from the initial ring.
         XCTAssertEqual(h.audioPlayer.playedSounds.count, 1, "cancelling a mission should not need to restart the alarm sound, since it never stopped")
         XCTAssertEqual(h.audioPlayer.stopCount, 0, "cancelling a mission must not stop the alarm sound")
+    }
+
+    func testStartingAMissionSchedulesAnInsuranceRearmAgainstForceQuit() async throws {
+        // Tapping Turn Off/Snooze on AlarmKit's own system alert appears to silence its native
+        // alert immediately, regardless of our custom stopIntent/secondaryIntent (which only
+        // opens the app). Without this insurance re-arm, force-quitting the app before actually
+        // finishing the mission would leave the alarm silently, permanently dismissed --
+        // defeating the entire point of gating dismissal behind a mission.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        let beforeCount = h.scheduler.scheduledCalls.count
+        h.coordinator.beginTurnOff()
+
+        // The insurance re-arm is a fire-and-forget Task inside startMission (which is
+        // synchronous, matching beginTurnOff()/beginSnooze() being plain SwiftUI button
+        // actions, so it can't be awaited directly) -- give it a beat to actually run.
+        var found = false
+        for _ in 0..<40 {
+            if h.scheduler.scheduledCalls.count > beforeCount {
+                found = true
+                break
+            }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        XCTAssertTrue(found, "starting a mission should schedule an insurance re-arm")
+
+        let insuranceCall = try XCTUnwrap(h.scheduler.scheduledCalls.last)
+        XCTAssertEqual(insuranceCall.alarm.id, alarm.id)
+        let fireDate = try XCTUnwrap(insuranceCall.fireDate)
+        XCTAssertEqual(
+            fireDate.timeIntervalSinceNow, AlarmCoordinator.missionInsuranceDelay, accuracy: 5,
+            "the insurance re-arm should fire well before the mission could ever be abandoned indefinitely"
+        )
     }
 
     func testDeleteAlarmCancelsSchedulerAndPendingWakeUpCheck() async {
