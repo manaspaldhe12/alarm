@@ -212,8 +212,18 @@ final class AlarmCoordinator {
     }
 
     /// How far out each individual insurance re-arm (see `startMission`)
-    /// sets the alarm's next fire date.
-    static let missionInsuranceDelay: TimeInterval = 15
+    /// sets the alarm's next fire date. Apple's own AlarmKit FAQ says a
+    /// successfully-scheduled alarm "is expected to persist regardless of
+    /// app or device state changes" (developer.apple.com/forums/thread/797158)
+    /// -- i.e. this re-arm is honored by the system daemon, not this app's
+    /// process, so it isn't at risk of being killed mid-flight the way the
+    /// in-app mission sound is. That's what lets this be short: the only
+    /// real ceiling is leaving enough headroom for the schedule() call
+    /// itself to land before its own fire date arrives, and not cycling
+    /// AlarmKit's stop/re-arm so fast it trips known dismiss/re-alert edge
+    /// cases (e.g. the "zombie Live Activity" bug tracked at
+    /// developer.apple.com/forums/thread/819556).
+    static let missionInsuranceDelay: TimeInterval = 6
     /// How often the insurance loop in `startMission` refreshes that fire
     /// date while a mission is genuinely still in progress. Must be well
     /// under `missionInsuranceDelay` so a legitimate, still-running mission
@@ -221,7 +231,7 @@ final class AlarmCoordinator {
     /// its cover before the previous fire date could ever arrive -- only an
     /// app that's actually gone (force-quit, crashed, killed by the system)
     /// lets a scheduled fire date go unrefreshed and actually arrive.
-    private static let missionInsuranceHeartbeat: TimeInterval = 8
+    private static let missionInsuranceHeartbeat: TimeInterval = 3
 
     /// The alarm sound deliberately keeps playing through the whole mission
     /// attempt — silencing it here (as this used to do) removed the
@@ -257,22 +267,23 @@ final class AlarmCoordinator {
         //
         // The in-app mission sound itself (AlarmAudioPlayer) is ordinary
         // app-process audio -- like any third-party app's, it cannot survive
-        // a real force-quit; no app can keep audio playing after the user
-        // swipes it away in the app switcher. What *can* survive that is
-        // AlarmKit's own native alert, since that's driven by the system,
-        // not this process. So rather than a single one-shot re-arm, this
-        // loops the whole time a mission is in progress, continually pushing
-        // the next native fire date `missionInsuranceDelay` out every
-        // `missionInsuranceHeartbeat`. As long as the app (and this Task)
-        // is alive, each refresh lands well before the previous fire date
-        // could ever arrive, so a legitimate in-progress mission never
-        // triggers a spurious extra alert. The moment the app actually dies,
-        // the most recent fire date is the last thing that got scheduled --
-        // bounding how long the alarm can stay silent to roughly
-        // `missionInsuranceDelay`, not indefinitely. performSnooze/
-        // performTurnOff cancel and await this Task before doing their own
-        // real (and final) scheduling, so their call is always the last
-        // word rather than racing this one.
+        // a real force-quit, since the whole process is killed. What *can*
+        // survive that is AlarmKit's own native alert: it's honored by the
+        // system daemon regardless of this app's process state (see
+        // missionInsuranceDelay's doc comment), the same mechanism apps like
+        // Alarmy rely on via local notifications pre-AlarmKit. So rather
+        // than a single one-shot re-arm, this loops the whole time a
+        // mission is in progress, continually pushing the next native fire
+        // date `missionInsuranceDelay` out every `missionInsuranceHeartbeat`.
+        // As long as the app (and this Task) is alive, each refresh lands
+        // well before the previous fire date could ever arrive, so a
+        // legitimate in-progress mission never triggers a spurious extra
+        // alert. The moment the app actually dies, the most recent fire
+        // date is the last thing that got scheduled -- bounding how long
+        // the alarm can stay silent to roughly `missionInsuranceDelay`, not
+        // indefinitely. performSnooze/performTurnOff cancel and await this
+        // Task before doing their own real (and final) scheduling, so their
+        // call is always the last word rather than racing this one.
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
             insuranceTask = Task {
                 while !Task.isCancelled {
