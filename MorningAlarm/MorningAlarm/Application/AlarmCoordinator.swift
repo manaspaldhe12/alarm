@@ -350,45 +350,64 @@ final class AlarmCoordinator {
 
     /// Internal (not private) so tests can drive one sync cycle directly
     /// instead of waiting on the real 1-second loop.
+    ///
+    /// Polling only ever detects NEW transitions *into* a ringing/mission
+    /// flow (from `.idle` or `.gentleWake`) — it must never transition back
+    /// *out* of `.ringing`/`.runningMission` on its own. This used to reset
+    /// `.ringing` to `.idle` the moment `scheduler.alertingAlarmIDs()`
+    /// stopped reporting the alarm, on the assumption that meant the alarm
+    /// was genuinely dismissed. In practice, tapping Turn Off/Snooze on
+    /// AlarmKit's own system alert appears to clear its *own* alerting
+    /// state immediately, independent of whatever our custom
+    /// stopIntent/secondaryIntent's perform() actually does (which, by
+    /// design, is just "open the app" — it never calls stop()/schedule()
+    /// itself). With the old code, the very next 1-second poll would see
+    /// "not alerting anymore" and silently reset .ringing to .idle before
+    /// the user had any real chance to interact with the mission-gated
+    /// in-app screen — the exact "opens, rings once, and stops, no mission
+    /// enforced" behavior that was reported. Once the user is in
+    /// `.ringing`/`.runningMission`, only their own actions (or a mission
+    /// actually finishing) should move things forward now.
     func syncAlertingAlarms() async {
         let knownAlarmIDs = Set(alarms.map(\.id))
 
-        let alertingIDs = await scheduler.alertingAlarmIDs()
-        if let alertingID = alertingIDs.first(where: { knownAlarmIDs.contains($0) }) {
-            if case .ringing(let currentID) = runtimeState, currentID == alertingID {
+        switch runtimeState {
+        case .idle:
+            let alertingIDs = await scheduler.alertingAlarmIDs()
+            if let alertingID = alertingIDs.first(where: { knownAlarmIDs.contains($0) }) {
+                await presentRingingAlarm(alertingID)
                 return
             }
-            if case .runningMission(let currentID, _) = runtimeState, currentID == alertingID {
-                return
-            }
-            await presentRingingAlarm(alertingID)
-            return
-        }
 
-        let countdownIDs = await scheduler.countdownAlarmIDs()
-        if let countdownID = countdownIDs.first(where: { knownAlarmIDs.contains($0) }) {
-            if case .gentleWake(let currentID) = runtimeState, currentID == countdownID {
-                return
-            }
-            if case .idle = runtimeState, let alarm = alarms.first(where: { $0.id == countdownID }) {
+            let countdownIDs = await scheduler.countdownAlarmIDs()
+            if let countdownID = countdownIDs.first(where: { knownAlarmIDs.contains($0) }),
+               let alarm = alarms.first(where: { $0.id == countdownID }) {
                 runtimeState = .gentleWake(alarmID: countdownID)
                 try? audioPlayer.playGentleWake(alarm.sound, rampDuration: alarm.gentleWake.duration)
             }
-            return
-        }
 
-        if case .gentleWake = runtimeState {
-            runtimeState = .idle
-            await audioPlayer.stop()
-        }
+        case .gentleWake(let countdownID):
+            let alertingIDs = await scheduler.alertingAlarmIDs()
+            if alertingIDs.contains(countdownID) {
+                await presentRingingAlarm(countdownID)
+                return
+            }
 
-        if case .ringing = runtimeState {
-            runtimeState = .idle
-            await audioPlayer.stop()
-        }
+            let countdownIDs = await scheduler.countdownAlarmIDs()
+            if !countdownIDs.contains(countdownID) {
+                // The countdown ended without reaching a real alert (e.g. the
+                // alarm was cancelled mid-ramp) — stop the gentle-wake audio.
+                runtimeState = .idle
+                await audioPlayer.stop()
+            }
 
-        if case .snoozed(let until, let alarmID) = runtimeState, Date() >= until {
-            await presentRingingAlarm(alarmID)
+        case .snoozed(let until, let alarmID):
+            if Date() >= until {
+                await presentRingingAlarm(alarmID)
+            }
+
+        case .ringing, .runningMission, .morningComplete:
+            break
         }
     }
 }

@@ -266,6 +266,48 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(h.coordinator.runtimeState, .idle)
     }
 
+    func testSyncAlertingAlarmsDoesNotResetRingingWhenAlarmKitStopsReportingIt() async throws {
+        // Regression test for: tapping Turn Off/Snooze on AlarmKit's own system
+        // alert appears to clear its alerting state immediately, independent of
+        // our custom stopIntent/secondaryIntent (which only opens the app --
+        // see AlarmKitScheduler). The old polling logic treated "AlarmKit no
+        // longer reports this as alerting" as "the user dismissed it some other
+        // way," resetting .ringing back to .idle within ~1 real second -- often
+        // before the user could interact with the in-app mission-gated screen
+        // at all. Once ringing, only our own flow should be able to leave it.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        let alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        await h.coordinator.updateAlarm(alarm)
+
+        h.scheduler.alerting = [alarm.id]
+        await h.coordinator.syncAlertingAlarms()
+        XCTAssertEqual(h.coordinator.runtimeState, .ringing(alarmID: alarm.id))
+
+        // AlarmKit no longer reports it as alerting (e.g. the system alert was
+        // tapped) -- our in-app ringing screen must stay up regardless.
+        h.scheduler.alerting = []
+        await h.coordinator.syncAlertingAlarms()
+        await h.coordinator.syncAlertingAlarms()
+        XCTAssertEqual(h.coordinator.runtimeState, .ringing(alarmID: alarm.id), "polling must not reset .ringing just because AlarmKit's own alerting state changed")
+    }
+
+    func testSyncAlertingAlarmsDoesNotResetRunningMissionWhenAlarmKitStopsReportingAlerting() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff))
+
+        h.scheduler.alerting = []
+        await h.coordinator.syncAlertingAlarms()
+        XCTAssertEqual(h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff), "polling must not interrupt an in-progress mission")
+    }
+
     func testSetEnabledFalseCancelsPendingWakeUpCheck() async {
         let h = makeHarness()
         await h.coordinator.refreshAuthorization()
