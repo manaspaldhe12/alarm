@@ -5,6 +5,12 @@ import Foundation
 // AlarmCoordinator/WakeUpCoordinator/MissionCoordinator's real logic without
 // touching AlarmKit/CoreMotion/AVFoundation/UIKit in tests.
 
+struct FakeError: Error, LocalizedError {
+    let message: String
+    init(_ message: String = "fake failure") { self.message = message }
+    var errorDescription: String? { message }
+}
+
 final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
     var authorizationResult: Bool = true
     private(set) var scheduledCalls: [(alarm: Alarm, fireDate: Date?)] = []
@@ -12,10 +18,20 @@ final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
     private(set) var stoppedIDs: [UUID] = []
     var alerting: Set<UUID> = []
     var countdown: Set<UUID> = []
+    /// Debug state to report per alarm ID — see `debugState(for:)`. `nil`
+    /// for an ID not in this dictionary, matching "AlarmKit has no record
+    /// of this alarm at all".
+    var debugStates: [UUID: String] = [:]
+    /// Alarm IDs for which `schedule(_:fireDate:)` should throw instead of
+    /// succeeding, to test failure-handling paths.
+    var scheduleFailureIDs: Set<UUID> = []
 
     func requestAuthorizationIfNeeded() async throws -> Bool { authorizationResult }
 
     func schedule(_ alarm: Alarm, fireDate: Date?) async throws {
+        if scheduleFailureIDs.contains(alarm.id) {
+            throw FakeError("schedule() failed for \(alarm.id)")
+        }
         scheduledCalls.append((alarm, fireDate))
     }
 
@@ -31,7 +47,7 @@ final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
 
     func alertingAlarmIDs() async -> [UUID] { Array(alerting) }
     func countdownAlarmIDs() async -> [UUID] { Array(countdown) }
-    func debugState(for alarmID: UUID) async -> String? { nil }
+    func debugState(for alarmID: UUID) async -> String? { debugStates[alarmID] }
 }
 
 final class FakeAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
@@ -54,6 +70,13 @@ final class FakeAlarmAudioPlayer: AlarmAudioPlayer, @unchecked Sendable {
 
 actor FakeAlarmRepository: AlarmRepository {
     private var storage: [UUID: Alarm] = [:]
+    /// IDs for which `delete(id:)` should throw instead of succeeding, to
+    /// test failure-handling paths.
+    private var deleteFailureIDs: Set<UUID> = []
+
+    func setDeleteFailure(for id: UUID) {
+        deleteFailureIDs.insert(id)
+    }
 
     func alarms() async throws -> [Alarm] { Array(storage.values) }
 
@@ -62,6 +85,9 @@ actor FakeAlarmRepository: AlarmRepository {
     }
 
     func delete(id: UUID) async throws {
+        if deleteFailureIDs.contains(id) {
+            throw FakeError("delete() failed for \(id)")
+        }
         storage[id] = nil
     }
 }

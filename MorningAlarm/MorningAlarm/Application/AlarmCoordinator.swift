@@ -36,6 +36,17 @@ final class AlarmCoordinator {
     private var observationTask: Task<Void, Never>?
     /// Internal (not private) get so `@testable import` can assert on it.
     private(set) var snoozeCounts: [UUID: Int] = [:]
+    /// The in-flight "insurance" re-arm Task from `startMission`, if any —
+    /// see that method and `performSnooze`/`performTurnOff` for why this
+    /// must be awaited (not just fired-and-forgotten) before either of
+    /// those does its own real scheduling.
+    private var insuranceTask: Task<Void, Never>?
+    /// Reentrancy guard for `missionFinished(.completed)`: the runtimeState
+    /// guard there only actually changes once the spawned Task runs, so a
+    /// duplicate call arriving before that would otherwise pass the same
+    /// guard twice and spawn two concurrent performSnooze/performTurnOff
+    /// calls for the same alarm.
+    private var isFinishingMission = false
 
     init(
         repository: AlarmRepository,
@@ -90,6 +101,7 @@ final class AlarmCoordinator {
     }
 
     func reloadAlarms() async {
+        lastErrorMessage = nil
         do {
             alarms = try await repository.alarms().sorted { lhs, rhs in
                 if lhs.time.hour == rhs.time.hour {
@@ -114,23 +126,35 @@ final class AlarmCoordinator {
 
     func deleteAlarm(id: UUID) async {
         lastErrorMessage = nil
-        do {
-            // Best-effort: the alarm may have already fired and been
-            // auto-removed by AlarmKit (non-repeating alarms), or never been
-            // successfully scheduled in the first place. Either way, that's
-            // not a reason to abort deleting it from our own records.
-            try? await scheduler.cancel(alarmID: id)
-            await wakeUpCoordinator.cancelPending(forOriginalAlarmID: id)
-            try await repository.delete(id: id)
-            alarms.removeAll { $0.id == id }
+        if isCurrentAlarm(id) {
+            insuranceTask?.cancel()
+            insuranceTask = nil
+        }
 
-            if isCurrentAlarm(id) {
-                runtimeState = .idle
-                currentMissionSession = nil
-                await audioPlayer.stop()
-            }
+        // Best-effort: the alarm may have already fired and been
+        // auto-removed by AlarmKit (non-repeating alarms), or never been
+        // successfully scheduled in the first place. Either way, that's
+        // not a reason to abort deleting it from our own records.
+        try? await scheduler.cancel(alarmID: id)
+        await wakeUpCoordinator.cancelPending(forOriginalAlarmID: id)
+
+        do {
+            try await repository.delete(id: id)
         } catch {
+            // The AlarmKit registration is already gone regardless (best-
+            // effort above) -- still remove it from our own list below
+            // rather than leaving a "ghost" the user thinks is still
+            // active but which will never actually fire again. The error
+            // is still surfaced so something visibly went wrong.
             lastErrorMessage = error.localizedDescription
+        }
+
+        alarms.removeAll { $0.id == id }
+
+        if isCurrentAlarm(id) {
+            runtimeState = .idle
+            currentMissionSession = nil
+            await audioPlayer.stop()
         }
     }
 
@@ -199,6 +223,16 @@ final class AlarmCoordinator {
     /// failing or cancelling a mission leaves it playing uninterrupted,
     /// since it was never stopped to begin with.
     private func startMission(alarmID: UUID, action: MissionAction, configuration: MissionConfiguration) {
+        // A retry (failed/cancelled mission -> back to .ringing -> tapped
+        // again) calls this a second time -- cancel any still-outstanding
+        // insurance re-arm from the previous attempt first, since it's
+        // superseded by the new one below (cancellation is cooperative and
+        // won't necessarily abort an in-flight AlarmKit call already past
+        // the isCancelled check, but combined with performSnooze/
+        // performTurnOff awaiting `insuranceTask` before doing their own
+        // real scheduling, this keeps the window for a stale race small).
+        insuranceTask?.cancel()
+
         currentMissionSession = missionCoordinator.makeSession(for: configuration)
         runtimeState = .runningMission(alarmID: alarmID, action: action)
 
@@ -213,20 +247,25 @@ final class AlarmCoordinator {
         // ever having been asked of the user -- defeating the entire point
         // of gating dismissal behind a mission. Re-arming a one-shot fire a
         // short time out means the alarm rings again regardless if nothing
-        // else happens; performSnooze/performTurnOff overwrite or cancel
-        // this the moment the mission is genuinely finished.
+        // else happens; performSnooze/performTurnOff await and clear this
+        // Task before doing their own real (and final) scheduling, so their
+        // call is always the last word rather than racing this one.
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
             let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
-            Task { try? await scheduler.schedule(alarm, fireDate: insuranceDate) }
+            insuranceTask = Task {
+                guard !Task.isCancelled else { return }
+                try? await scheduler.schedule(alarm, fireDate: insuranceDate)
+            }
         }
     }
 
     func missionFinished(_ result: MissionResult) {
-        guard case .runningMission(let alarmID, let action) = runtimeState else { return }
+        guard case .runningMission(let alarmID, let action) = runtimeState, !isFinishingMission else { return }
         currentMissionSession = nil
 
         switch result {
         case .completed:
+            isFinishingMission = true
             Task {
                 switch action {
                 case .snooze:
@@ -234,6 +273,7 @@ final class AlarmCoordinator {
                 case .turnOff:
                     await performTurnOff(alarmID: alarmID)
                 }
+                isFinishingMission = false
             }
         case .failed(let reason):
             lastErrorMessage = reason
@@ -258,6 +298,12 @@ final class AlarmCoordinator {
         guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
 
         lastErrorMessage = nil
+        // Wait for (and clear) any in-flight insurance re-arm from
+        // startMission before our own real scheduling below -- otherwise
+        // the two race and the insurance call can land after this one and
+        // silently overwrite the snooze duration the user actually chose.
+        await insuranceTask?.value
+        insuranceTask = nil
         do {
             snoozeCounts[alarmID, default: 0] += 1
             // Explicitly stop the currently-alerting native alarm before
@@ -278,6 +324,10 @@ final class AlarmCoordinator {
 
     private func performTurnOff(alarmID: UUID) async {
         lastErrorMessage = nil
+        // See performSnooze -- must happen before this method's own real
+        // scheduling/cancelling below, for the same race-avoidance reason.
+        await insuranceTask?.value
+        insuranceTask = nil
         do {
             // Both best-effort: the actual outcome we need -- disabled/
             // reinstalled, sound stopped, user sees morning-complete --
@@ -303,7 +353,24 @@ final class AlarmCoordinator {
             if alarm.enabled {
                 if alarm.recurrence.isRepeating {
                     // cancel() above wiped the native recurring schedule too -- reinstall it.
-                    try await scheduler.schedule(alarm, fireDate: nil)
+                    do {
+                        try await scheduler.schedule(alarm, fireDate: nil)
+                    } catch {
+                        // Reinstalling failed -- rather than silently leaving
+                        // the alarm "enabled" in the UI/repository with
+                        // nothing actually scheduled (which would never fire
+                        // again until the user happened to notice and
+                        // re-toggle it), disable it so the UI honestly
+                        // reflects that it needs attention. The rest of
+                        // turn-off (wake-up check, morning-complete) still
+                        // proceeds -- the user did finish their mission.
+                        lastErrorMessage = error.localizedDescription
+                        alarm.enabled = false
+                        try? await repository.save(alarm)
+                        if let index = alarms.firstIndex(where: { $0.id == alarmID }) {
+                            alarms[index] = alarm
+                        }
+                    }
                 } else {
                     alarm.enabled = false
                     try await repository.save(alarm)
@@ -327,6 +394,7 @@ final class AlarmCoordinator {
     // MARK: - Persistence + scheduling
 
     private func saveAndSchedule(_ alarm: Alarm) async {
+        var alarm = alarm
         lastErrorMessage = nil
         do {
             try await repository.save(alarm)
@@ -360,6 +428,17 @@ final class AlarmCoordinator {
             }
         } catch {
             lastErrorMessage = error.localizedDescription
+            // The save + array update above already happened, so the alarm
+            // may be persisted/listed as enabled even though scheduling
+            // failed -- roll that back rather than leaving the UI lying
+            // about being scheduled when AlarmKit has nothing for it.
+            if alarm.enabled {
+                alarm.enabled = false
+                try? await repository.save(alarm)
+                if let index = alarms.firstIndex(where: { $0.id == alarm.id }) {
+                    alarms[index] = alarm
+                }
+            }
         }
     }
 
@@ -367,6 +446,14 @@ final class AlarmCoordinator {
         guard authorizationGranted else { return }
 
         for alarm in alarms where alarm.enabled {
+            // Skip alarms AlarmKit already has *some* record of (its
+            // regular schedule, an active one-shot snooze override,
+            // mid-alert, etc.). This runs on every launch/reload;
+            // rescheduling unconditionally here would silently clobber e.g.
+            // a still-pending snooze fireDate with the alarm's regular
+            // (possibly much later) schedule the moment the app relaunches
+            // during a snooze window.
+            guard await scheduler.debugState(for: alarm.id) == nil else { continue }
             do {
                 try await scheduler.schedule(alarm, fireDate: nil)
             } catch {

@@ -37,6 +37,14 @@ struct RootView: View {
             runtimeOverlay
                 .zIndex(1)
 
+            // Turning the volume down is otherwise a trivial way to defeat
+            // a mission-gated alarm — see VolumeForcer's doc comment. Not
+            // active during .gentleWake (that's a deliberate soft ramp) or
+            // once the mission is actually done (.snoozed/.morningComplete)
+            // -- only while the alarm is genuinely still going/being fought.
+            VolumeForcer(isActive: shouldForceMaxVolume)
+                .frame(width: 0, height: 0)
+
             if let wakeAlarmID = coordinator.wakeUpCoordinator.activeAlarmID,
                let wakeAlarm = coordinator.alarm(for: wakeAlarmID) {
                 WakeUpCheckView(
@@ -49,6 +57,15 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut, value: coordinator.runtimeState)
+    }
+
+    private var shouldForceMaxVolume: Bool {
+        switch coordinator.runtimeState {
+        case .ringing, .runningMission:
+            return true
+        case .idle, .gentleWake, .snoozed, .morningComplete:
+            return coordinator.wakeUpCoordinator.activeAlarmID != nil
+        }
     }
 
     @ViewBuilder

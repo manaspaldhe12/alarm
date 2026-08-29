@@ -86,6 +86,7 @@
 		BLF0000000000000000000077 /* MorningAlarmMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000013 /* MorningAlarmMetadata.swift */; };
 		BLF0000000000000000000078 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = PRD0000000000000000000002 /* MorningAlarmWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BLF0000000000000000000079 /* TestMissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000080 /* TestMissionView.swift */; };
+		BLF0000000000000000000080 /* VolumeForcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000081 /* VolumeForcer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -203,6 +204,7 @@
 		PRD0000000000000000000002 /* MorningAlarmWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MorningAlarmWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		PRD0000000000000000000003 /* MorningAlarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MorningAlarmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FRF0000000000000000000080 /* TestMissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMissionView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000081 /* VolumeForcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeForcer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -461,7 +463,8 @@
 			isa = PBXGroup;
 			children = (
 				FRF0000000000000000000048 /* LocalAlarmAudioPlayer.swift */,
-			);
+							FRF0000000000000000000081 /* VolumeForcer.swift */,
+);
 			path = Audio;
 			sourceTree = "<group>";
 		};
@@ -807,7 +810,8 @@
 				BLF0000000000000000000059 /* QuoteRepository.swift in Sources */,
 				BLF0000000000000000000063 /* OpenAlarmIntent.swift in Sources */,
 				BLF0000000000000000000079 /* TestMissionView.swift in Sources */,
-			);
+							BLF0000000000000000000080 /* VolumeForcer.swift in Sources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		SRC0000000000000000000002 /* Sources */ = {

@@ -555,4 +555,116 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(h.coordinator.runtimeState, .idle)
         XCTAssertNil(h.coordinator.currentQuote)
     }
+
+    // MARK: - Regression tests from a whole-codebase review pass
+
+    func testReconcileSkipsAlarmsAlarmKitAlreadyHasARecordOf() async throws {
+        // reconcileScheduledAlarms runs on every launch/reload -- rescheduling an enabled alarm
+        // unconditionally would silently clobber e.g. a still-pending one-shot snooze fireDate
+        // with the alarm's regular schedule the moment the app relaunches during a snooze window
+        // (runtimeState lives only in memory and forgets the snooze on relaunch).
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        let alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        await h.coordinator.updateAlarm(alarm)
+        XCTAssertEqual(h.scheduler.scheduledCalls.count, 1, "sanity: creating the alarm should schedule it once")
+
+        // Simulate AlarmKit already having *some* record of this alarm (e.g. a pending snooze).
+        h.scheduler.debugStates[alarm.id] = "countdown(...)"
+
+        await h.coordinator.reloadAlarms()
+
+        XCTAssertEqual(h.scheduler.scheduledCalls.count, 1, "reconcile must not reschedule an alarm AlarmKit already has a record of")
+    }
+
+    func testSaveAndScheduleRollsBackEnabledOnScheduleFailure() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        let alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        h.scheduler.scheduleFailureIDs.insert(alarm.id)
+
+        await h.coordinator.updateAlarm(alarm)
+
+        let saved = try XCTUnwrap(h.coordinator.alarm(for: alarm.id))
+        XCTAssertFalse(saved.enabled, "a scheduling failure must roll the alarm back to disabled, not leave it looking active with nothing actually scheduled")
+        XCTAssertNotNil(h.coordinator.lastErrorMessage)
+    }
+
+    func testDeleteAlarmRemovesLocallyEvenIfRepositoryDeleteFails() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        let alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        await h.coordinator.updateAlarm(alarm)
+        await h.repository.setDeleteFailure(for: alarm.id)
+
+        await h.coordinator.deleteAlarm(id: alarm.id)
+
+        XCTAssertTrue(h.coordinator.alarms.isEmpty, "the AlarmKit registration is already cancelled regardless of the repository failure -- a ghost alarm the app still lists would never actually fire again with nothing to explain why")
+        XCTAssertNotNil(h.coordinator.lastErrorMessage)
+    }
+
+    func testPerformTurnOffDisablesRepeatingAlarmWhenReinstallFails() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0), recurrence: .everyDay)
+        alarm.turnOffMission = .none
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        // Fail every schedule() call for this alarm from here on, including performTurnOff's own
+        // reinstall-the-recurring-schedule call (and the startMission insurance call, harmlessly
+        // -- it's best-effort).
+        h.scheduler.scheduleFailureIDs.insert(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        try await waitForMissionResult(h)
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("the user did finish their mission -- turn-off should still reach morningComplete even if the reinstall failed, got \(h.coordinator.runtimeState)")
+            return
+        }
+        let reloaded = try XCTUnwrap(h.coordinator.alarm(for: alarm.id))
+        XCTAssertFalse(reloaded.enabled, "a repeating alarm whose native reschedule fails must be disabled, not left looking 'enabled' with nothing scheduled")
+        XCTAssertNotNil(h.coordinator.lastErrorMessage)
+    }
+
+    func testMissionFinishedIgnoresDuplicateCompletedCall() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .none
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff))
+
+        // Simulate a duplicate completion call arriving before the first spawned Task has run far
+        // enough to move runtimeState out of .runningMission -- without the reentrancy guard,
+        // both calls would pass the same `case .runningMission` check and spawn two concurrent
+        // performTurnOff calls for the same alarm, double-running stop()/cancel()/schedule().
+        h.coordinator.missionFinished(.completed)
+        h.coordinator.missionFinished(.completed)
+
+        for _ in 0..<80 {
+            if case .morningComplete = h.coordinator.runtimeState { break }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("expected .morningComplete, got \(h.coordinator.runtimeState)")
+            return
+        }
+        XCTAssertEqual(h.scheduler.stoppedIDs.count, 1, "a duplicate missionFinished(.completed) call must not double-run performTurnOff")
+    }
+
+    func testReloadAlarmsClearsStaleErrorMessage() async {
+        let h = makeHarness()
+        h.scheduler.authorizationResult = false
+        await h.coordinator.refreshAuthorization()
+        XCTAssertNotNil(h.coordinator.lastErrorMessage)
+
+        await h.coordinator.reloadAlarms()
+        XCTAssertNil(h.coordinator.lastErrorMessage, "a successful reload must clear a stale error, not leave it displayed forever")
+    }
 }

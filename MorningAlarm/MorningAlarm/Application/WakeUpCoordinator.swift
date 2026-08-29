@@ -62,6 +62,14 @@ final class WakeUpCoordinator {
         let matching = pendingCheckIDs.filter { $0.value == alarmID }
         for checkID in matching.keys {
             pendingCheckIDs[checkID] = nil
+            // stop() before cancel(): a check alarm could be actively
+            // alerting when this runs, and AlarmCoordinator's own
+            // performTurnOff applies the same two-call belt-and-suspenders
+            // pattern for exactly that case (see its comment, citing a
+            // documented AlarmKit issue where a non-repeating alarm --
+            // which every check alarm is -- isn't fully cleared by cancel()
+            // alone if it's mid-alert).
+            try? await scheduler.stop(alarmID: checkID)
             try? await scheduler.cancel(alarmID: checkID)
         }
         guard !matching.isEmpty else { return }
@@ -95,6 +103,9 @@ final class WakeUpCoordinator {
         guard let originalID = pendingCheckIDs[checkID] else { return }
 
         try? await scheduler.stop(alarmID: checkID)
+        // See cancelPending's comment: every check alarm is non-repeating,
+        // exactly the case that needs cancel() too, not just stop().
+        try? await scheduler.cancel(alarmID: checkID)
         pendingCheckIDs[checkID] = nil
         await stateStore.save(pendingCheckIDs)
         activeAlarmID = originalID

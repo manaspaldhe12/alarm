@@ -60,6 +60,9 @@ final class WakeUpCoordinatorTests: XCTestCase {
         XCTAssertEqual(coordinator.pendingCheckIDs.count, 1)
         XCTAssertEqual(coordinator.pendingCheckIDs.values.first, alarmB.id)
         XCTAssertEqual(scheduler.cancelledIDs.count, 1)
+        // stop() before cancel(): every check alarm is non-repeating, the exact case
+        // AlarmCoordinator's own belt-and-suspenders comment says needs both, not cancel() alone.
+        XCTAssertEqual(scheduler.stoppedIDs.count, 1, "cancelPending should stop() a possibly-alerting check alarm too, not just cancel() it")
     }
 
     func testPollTransitionsActiveAlarmIDWhenCheckAlerts() async throws {
@@ -77,6 +80,9 @@ final class WakeUpCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(coordinator.activeAlarmID, alarm.id)
         XCTAssertEqual(scheduler.stoppedIDs, [checkID], "poll should formally stop the AlarmKit alert once captured")
+        // Every check alarm is non-repeating -- exactly the case that needs cancel() too, per the
+        // same documented-AlarmKit-bug reasoning AlarmCoordinator.performTurnOff already applies.
+        XCTAssertEqual(scheduler.cancelledIDs, [checkID], "poll should also cancel() a fired non-repeating check alarm, not just stop() it")
         XCTAssertEqual(coordinator.pendingCheckIDs.count, 0, "the consumed check should be removed from pending state")
     }
 
