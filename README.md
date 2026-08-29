@@ -2,6 +2,10 @@
 
 [![Build installable IPA](https://github.com/manaspaldhe12/alarm/actions/workflows/build-ipa.yml/badge.svg)](https://github.com/manaspaldhe12/alarm/actions/workflows/build-ipa.yml)
 
+### 📲 [Download the latest build (MorningAlarm.ipa)](https://github.com/manaspaldhe12/alarm/releases/download/latest/MorningAlarm.ipa)
+
+Rebuilt automatically on every push to `main` — always the newest code. Unsigned; install with Sideloadly or AltStore (no Xcode needed) — see [Install on your iPhone](#install-on-your-iphone) below.
+
 An offline-first iOS alarm app focused on helping you get out of bed, not just defeat an alarm. Covers description.md's full MVP scope: recurring alarms, gentle wake-up, step/QR/chess missions for snooze/turn-off/wake-up-check, motivational quotes, and an optional post-alarm app trigger.
 
 ## Requirements
