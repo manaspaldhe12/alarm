@@ -1,5 +1,6 @@
 import ActivityKit
 import AlarmKit
+import AppIntents
 import Foundation
 import SwiftUI
 
@@ -42,11 +43,19 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             systemImageName: "clock.arrow.circlepath"
         )
 
+        // .countdown (AlarmKit's own native snooze) and omitting stopIntent
+        // both hand the button taps entirely to AlarmKit itself -- neither
+        // one ever reaches AlarmCoordinator, which is exactly how "Turn Off"
+        // and "Snooze" were able to dismiss the alarm with no mission gating
+        // at all. .custom + explicit stopIntent/secondaryIntent (below, in
+        // the Configuration) route both taps through OpenAlarmIntent instead,
+        // which only opens the app to the mission-gated ringing screen and
+        // does not itself stop or snooze anything.
         let alert = AlarmPresentation.Alert(
             title: "Good morning",
             stopButton: stopButton,
             secondaryButton: snoozeButton,
-            secondaryButtonBehavior: .countdown
+            secondaryButtonBehavior: .custom
         )
 
         let attributes = AlarmAttributes<MorningAlarmMetadata>(
@@ -68,10 +77,14 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             sound = .named("\(fileName).wav")
         }
 
+        let openIntent = OpenAlarmIntent(alarmID: alarm.id.uuidString)
+
         let configuration = Configuration(
             countdownDuration: countdownDuration,
             schedule: schedule,
             attributes: attributes,
+            stopIntent: openIntent,
+            secondaryIntent: openIntent,
             sound: sound
         )
 
