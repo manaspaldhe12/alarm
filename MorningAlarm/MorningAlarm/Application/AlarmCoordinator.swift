@@ -304,26 +304,28 @@ final class AlarmCoordinator {
                 // presentRingingAlarm.
                 await missionState.save(.init(alarmID: alarmID, action: action, shadowIDs: shadowIDs))
 
-                await withTaskGroup(of: Void.self) { group in
-                    for (index, shadowID) in shadowIDs.enumerated() {
-                        group.addTask {
-                            let fireDate = Date().addingTimeInterval(Self.insuranceShadowSpacing * Double(index + 1))
-                            do {
-                                try await scheduler.scheduleShadowInsurance(shadowID: shadowID, for: alarm, fireDate: fireDate)
-                                await diagnostics.record(targetFireDate: fireDate, outcome: "scheduled")
-                            } catch {
-                                // Deliberately NOT swallowed via `try?` here
-                                // (unlike most other best-effort scheduler
-                                // calls in this file) -- this burst is the
-                                // only thing standing between a force-quit
-                                // mid-mission and the alarm staying
-                                // silently, permanently dismissed, so a
-                                // failure here needs to be visible on the
-                                // next launch (see InsuranceDiagnosticsLog),
-                                // not silently discarded.
-                                await diagnostics.record(targetFireDate: fireDate, outcome: "failed: \(error.localizedDescription)")
-                            }
-                        }
+                // Sequential, not concurrent (e.g. a TaskGroup firing all of
+                // these at once) -- the AlarmScheduler protocol only
+                // promises Sendable, not that a conforming type's internal
+                // mutable state (or AlarmKit's own daemon connection) is
+                // safe under truly concurrent calls, and firing several at
+                // once here isn't worth risking that for what's already a
+                // handful of fast, near-instant calls in practice.
+                for (index, shadowID) in shadowIDs.enumerated() {
+                    let fireDate = Date().addingTimeInterval(Self.insuranceShadowSpacing * Double(index + 1))
+                    do {
+                        try await scheduler.scheduleShadowInsurance(shadowID: shadowID, for: alarm, fireDate: fireDate)
+                        await diagnostics.record(targetFireDate: fireDate, outcome: "scheduled")
+                    } catch {
+                        // Deliberately NOT swallowed via `try?` here (unlike
+                        // most other best-effort scheduler calls in this
+                        // file) -- this burst is the only thing standing
+                        // between a force-quit mid-mission and the alarm
+                        // staying silently, permanently dismissed, so a
+                        // failure here needs to be visible on the next
+                        // launch (see InsuranceDiagnosticsLog), not silently
+                        // discarded.
+                        await diagnostics.record(targetFireDate: fireDate, outcome: "failed: \(error.localizedDescription)")
                     }
                 }
 
