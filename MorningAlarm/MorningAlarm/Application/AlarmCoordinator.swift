@@ -665,6 +665,25 @@ final class AlarmCoordinator {
                 return
             }
 
+            // A shadow insurance registration (see startMission) might be
+            // the one currently alerting instead of the real alarm itself
+            // -- shadows use their own AlarmKit ids, which are never added
+            // to `alarms`, so the check above can never recognize them on
+            // its own. Without this, a shadow firing while the app is
+            // closed is invisible to this poll loop entirely: the only way
+            // back in would be the user directly tapping that specific
+            // alert's button, which itself isn't fully reliable (a
+            // documented AlarmKit issue where stopIntent doesn't always
+            // fire on certain dismiss gestures --
+            // developer.apple.com/forums/thread/815064). Recognize it by
+            // matching against the persisted batch and resume the *real*
+            // alarm it was insuring, not the shadow id itself.
+            if let inProgress = await missionInsuranceState.load(),
+               alertingIDs.contains(where: { inProgress.shadowIDs.contains($0) }) {
+                await presentRingingAlarm(inProgress.alarmID)
+                return
+            }
+
             let countdownIDs = await scheduler.countdownAlarmIDs()
             if let countdownID = countdownIDs.first(where: { knownAlarmIDs.contains($0) }),
                let alarm = alarms.first(where: { $0.id == countdownID }) {

@@ -443,6 +443,72 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(h.coordinator.runtimeState, .idle)
     }
 
+    func testSyncAlertingAlarmsRecognizesAnAlertingShadowAndResumesTheRealAlarm() async throws {
+        // A shadow insurance registration (see AlarmCoordinator.startMission) uses its own
+        // AlarmKit id, never added to `alarms` -- the plain "is this id one of my known alarms"
+        // check can never recognize it on its own, so without this a shadow firing while the app
+        // is closed is invisible to the poll loop entirely once relaunched. Guards that an
+        // alerting shadow id still correctly resumes the REAL alarm's mission.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+        h.coordinator.beginTurnOff()
+
+        var inProgress: MissionInsuranceStateStore.InProgressMission?
+        for _ in 0..<40 {
+            inProgress = await h.coordinator.missionInsuranceState.load()
+            if let inProgress, !inProgress.shadowIDs.isEmpty { break }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        let shadowID = try XCTUnwrap(inProgress?.shadowIDs.first)
+
+        // Simulate a relaunch: a brand new coordinator instance sharing the same scheduler,
+        // repository, and mission-insurance state -- exactly what a real force-quit followed by
+        // reopening the app looks like. It starts fresh at .idle, same as the real app does.
+        let missionCoordinator = MissionCoordinator(
+            stepCounter: FakeStepCounter(),
+            qrCodeRepository: FakeQRCodeRepository(),
+            puzzleRepository: FakePuzzleRepository(),
+            chessEngine: LocalChessEngine()
+        )
+        let wakeUpCoordinator = WakeUpCoordinator(
+            scheduler: h.scheduler,
+            missionCoordinator: missionCoordinator,
+            stateStore: WakeUpCheckStateStore(fileURL: tempFileURL("wakeup-relaunch-\(UUID().uuidString)"))
+        )
+        let relaunched = AlarmCoordinator(
+            repository: h.repository,
+            scheduler: h.scheduler,
+            audioPlayer: FakeAlarmAudioPlayer(),
+            missionCoordinator: missionCoordinator,
+            quoteCoordinator: QuoteCoordinator(repository: FakeQuoteRepository(quotes: [])),
+            wakeUpCoordinator: wakeUpCoordinator,
+            appLauncher: FakeExternalAppLauncher(),
+            insuranceDiagnostics: h.coordinator.insuranceDiagnostics,
+            missionInsuranceState: h.coordinator.missionInsuranceState
+        )
+        // Keeps this test isolated from reconcileScheduledAlarms' own (unrelated) "recently
+        // missed" handling, which would otherwise depend on what time of day this test happens
+        // to run -- the real alarm having *some* AlarmKit record makes reconcile skip it, so
+        // only the poll loop's own shadow-recognition logic below is under test.
+        h.scheduler.debugStates[alarm.id] = "some-state"
+        await relaunched.refreshAuthorization()
+        await relaunched.reloadAlarms()
+
+        // The shadow (not the real alarm) is what AlarmKit reports as alerting.
+        h.scheduler.alerting = [shadowID]
+
+        await relaunched.syncAlertingAlarms()
+
+        XCTAssertEqual(
+            relaunched.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff),
+            "an alerting shadow id should resolve back to the real alarm's mission, not be silently ignored"
+        )
+    }
+
     func testSyncAlertingAlarmsDoesNotResetRingingWhenAlarmKitStopsReportingIt() async throws {
         // Regression test for: tapping Turn Off/Snooze on AlarmKit's own system
         // alert appears to clear its alerting state immediately, independent of
