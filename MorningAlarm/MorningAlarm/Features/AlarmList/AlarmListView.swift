@@ -1,21 +1,45 @@
 import SwiftUI
 
+/// What the editor sheet is presenting -- either a brand new alarm, or an
+/// existing one. Driving `.sheet(item:)` off this (instead of the more
+/// common `.sheet(isPresented:)` paired with a separate `Alarm?`) means
+/// SwiftUI's own `Identifiable`-keyed view identity handles "give me a
+/// genuinely fresh AlarmEditorView per distinct target" for us, rather than
+/// a hand-maintained `.id(...)` doing the same job less reliably: `.sheet(
+/// item:)` both keys identity off the *actual* item (so two different
+/// targets can never accidentally share stale @State) and automatically
+/// clears the bound value to `nil` on dismiss/cancel, which the previous
+/// `editingAlarm` state never did on its own.
+private enum EditorTarget: Identifiable {
+    case new
+    case existing(Alarm)
+
+    var id: String {
+        switch self {
+        case .new: return "new"
+        case .existing(let alarm): return alarm.id.uuidString
+        }
+    }
+
+    var alarm: Alarm? {
+        switch self {
+        case .new: return nil
+        case .existing(let alarm): return alarm
+        }
+    }
+}
+
 struct AlarmListView: View {
     @Bindable var coordinator: AlarmCoordinator
     let qrCodeRepository: QRCodeRepository
     let missionCoordinator: MissionCoordinator
     let stepCounter: StepCounter
 
-    @State private var showingEditor = false
-    @State private var editingAlarm: Alarm?
+    @State private var editorTarget: EditorTarget?
     @State private var showingQRSetup = false
     @State private var showingTestMissions = false
     @State private var showingInsuranceLog = false
     @State private var debugStates: [UUID: String] = [:]
-
-    /// A fixed, stable id for the editor sheet's "New Alarm" case — see the
-    /// `.id(...)` on the sheet below.
-    private static let newAlarmSheetID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
 
     var body: some View {
         NavigationStack {
@@ -38,8 +62,7 @@ struct AlarmListView: View {
                                     }
                                 },
                                 onTap: {
-                                    editingAlarm = alarm
-                                    showingEditor = true
+                                    editorTarget = .existing(alarm)
                                 },
                                 onTestRingNow: {
                                     Task {
@@ -94,16 +117,15 @@ struct AlarmListView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        editingAlarm = nil
-                        showingEditor = true
+                        editorTarget = .new
                     } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingEditor) {
+            .sheet(item: $editorTarget) { target in
                 AlarmEditorView(
-                    alarm: editingAlarm,
+                    alarm: target.alarm,
                     qrCodeRepository: qrCodeRepository,
                     onSave: { alarm in
                         Task {
@@ -111,17 +133,6 @@ struct AlarmListView: View {
                         }
                     }
                 )
-                // Without an explicit identity, SwiftUI can reuse this sheet's
-                // @State storage across separate presentations (e.g. "New
-                // Alarm" defaulting to 7 AM, then editing some other,
-                // disabled alarm afterward) since it's structurally the same
-                // view each time -- keying on which alarm (or "new", a fixed
-                // sentinel -- NOT a freshly-generated UUID, which would
-                // recompute on every body re-render and reset in-progress
-                // form state constantly) is being edited forces a fresh
-                // @State init from the actual alarm's saved time every time,
-                // matching AlarmEditorView.init's own (already-correct) logic.
-                .id(editingAlarm?.id ?? AlarmListView.newAlarmSheetID)
             }
             .sheet(isPresented: $showingTestMissions) {
                 TestMissionView(missionCoordinator: missionCoordinator, stepCounter: stepCounter)
