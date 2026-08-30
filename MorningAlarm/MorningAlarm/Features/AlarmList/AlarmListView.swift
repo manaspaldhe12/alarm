@@ -10,6 +10,7 @@ struct AlarmListView: View {
     @State private var editingAlarm: Alarm?
     @State private var showingQRSetup = false
     @State private var showingTestMissions = false
+    @State private var showingInsuranceLog = false
     @State private var debugStates: [UUID: String] = [:]
 
     /// A fixed, stable id for the editor sheet's "New Alarm" case — see the
@@ -84,6 +85,13 @@ struct AlarmListView: View {
                         Image(systemName: "testtube.2")
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingInsuranceLog = true
+                    } label: {
+                        Image(systemName: "waveform.path.ecg")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editingAlarm = nil
@@ -117,6 +125,9 @@ struct AlarmListView: View {
             }
             .sheet(isPresented: $showingTestMissions) {
                 TestMissionView(missionCoordinator: missionCoordinator, stepCounter: stepCounter)
+            }
+            .sheet(isPresented: $showingInsuranceLog) {
+                InsuranceDiagnosticsView(diagnostics: coordinator.insuranceDiagnostics)
             }
             .sheet(isPresented: $showingQRSetup) {
                 QRSetupView(repository: qrCodeRepository)

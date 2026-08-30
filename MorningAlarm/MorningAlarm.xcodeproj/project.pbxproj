@@ -87,6 +87,8 @@
 		BLF0000000000000000000078 /* MorningAlarmWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = PRD0000000000000000000002 /* MorningAlarmWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BLF0000000000000000000079 /* TestMissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000080 /* TestMissionView.swift */; };
 		BLF0000000000000000000080 /* VolumeForcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000081 /* VolumeForcer.swift */; };
+		BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */; };
+		BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +207,8 @@
 		PRD0000000000000000000003 /* MorningAlarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MorningAlarmTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FRF0000000000000000000080 /* TestMissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMissionView.swift; sourceTree = "<group>"; };
 		FRF0000000000000000000081 /* VolumeForcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeForcer.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsLog.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -370,6 +374,7 @@
 				GRP0000000000000000000015 /* QRSetup */,
 				GRP0000000000000000000016 /* WakeUpCheck */,
 							GRP0000000000000000000038 /* TestMissions */,
+				GRP0000000000000000000040 /* Diagnostics */,
 );
 			path = Features;
 			sourceTree = "<group>";
@@ -446,7 +451,8 @@
 				GRP0000000000000000000023 /* Persistence */,
 				GRP0000000000000000000024 /* QR */,
 				GRP0000000000000000000025 /* Quotes */,
-			);
+							GRP0000000000000000000039 /* Diagnostics */,
+);
 			path = Infrastructure;
 			sourceTree = "<group>";
 		};
@@ -616,6 +622,22 @@
 							FRF0000000000000000000080 /* TestMissionView.swift */,
 );
 			path = TestMissions;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000039 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+							FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */,
+);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000040 /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+							FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */,
+);
+			path = Diagnostics;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -811,6 +833,8 @@
 				BLF0000000000000000000063 /* OpenAlarmIntent.swift in Sources */,
 				BLF0000000000000000000079 /* TestMissionView.swift in Sources */,
 							BLF0000000000000000000080 /* VolumeForcer.swift in Sources */,
+				BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */,
+				BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */,
 );
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -40,7 +40,8 @@ final class AlarmCoordinatorTests: XCTestCase {
             missionCoordinator: missionCoordinator,
             quoteCoordinator: quoteCoordinator,
             wakeUpCoordinator: wakeUpCoordinator,
-            appLauncher: appLauncher
+            appLauncher: appLauncher,
+            insuranceDiagnostics: InsuranceDiagnosticsLog(fileURL: tempFileURL("insurance-diagnostics-\(UUID().uuidString)"))
         )
 
         return Harness(coordinator: coordinator, scheduler: scheduler, audioPlayer: audioPlayer, repository: repository, appLauncher: appLauncher)
@@ -282,6 +283,53 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(
             fireDate.timeIntervalSinceNow, AlarmCoordinator.missionInsuranceDelay, accuracy: 5,
             "the insurance re-arm should fire well before the mission could ever be abandoned indefinitely"
+        )
+    }
+
+    func testInsuranceReArmRecordsSuccessInDiagnosticsLog() async throws {
+        // The diagnostics log (see InsuranceDiagnosticsLog) exists specifically to answer,
+        // after a real force-quit, whether the insurance loop's schedule() calls actually
+        // succeeded -- this guards that a successful call really does get recorded.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+
+        var entries: [InsuranceDiagnosticsLog.Entry] = []
+        for _ in 0..<40 {
+            entries = await h.coordinator.insuranceDiagnostics.load()
+            if !entries.isEmpty { break }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(entries.first?.outcome, "scheduled")
+    }
+
+    func testInsuranceReArmRecordsFailureInDiagnosticsLog() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm) // succeeds -- failure is injected after, so only the insurance re-arm itself is affected
+        h.scheduler.scheduleFailureIDs.insert(alarm.id)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+
+        var entries: [InsuranceDiagnosticsLog.Entry] = []
+        for _ in 0..<40 {
+            entries = await h.coordinator.insuranceDiagnostics.load()
+            if !entries.isEmpty { break }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        XCTAssertEqual(entries.count, 1)
+        XCTAssertTrue(
+            entries.first?.outcome.hasPrefix("failed:") ?? false,
+            "a scheduler failure must be visible in the diagnostics log, not silently swallowed -- got \(String(describing: entries.first?.outcome))"
         )
     }
 

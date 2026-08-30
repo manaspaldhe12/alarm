@@ -32,6 +32,7 @@ final class AlarmCoordinator {
     private let quoteCoordinator: QuoteCoordinator
     let wakeUpCoordinator: WakeUpCoordinator
     let appLauncher: ExternalAppLauncher
+    let insuranceDiagnostics: InsuranceDiagnosticsLog
 
     private var observationTask: Task<Void, Never>?
     /// Internal (not private) get so `@testable import` can assert on it.
@@ -55,7 +56,8 @@ final class AlarmCoordinator {
         missionCoordinator: MissionCoordinator,
         quoteCoordinator: QuoteCoordinator,
         wakeUpCoordinator: WakeUpCoordinator,
-        appLauncher: ExternalAppLauncher
+        appLauncher: ExternalAppLauncher,
+        insuranceDiagnostics: InsuranceDiagnosticsLog = InsuranceDiagnosticsLog()
     ) {
         self.repository = repository
         self.scheduler = scheduler
@@ -64,6 +66,7 @@ final class AlarmCoordinator {
         self.quoteCoordinator = quoteCoordinator
         self.wakeUpCoordinator = wakeUpCoordinator
         self.appLauncher = appLauncher
+        self.insuranceDiagnostics = insuranceDiagnostics
     }
 
     func start() async {
@@ -285,10 +288,24 @@ final class AlarmCoordinator {
         // Task before doing their own real (and final) scheduling, so their
         // call is always the last word rather than racing this one.
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
+            let diagnostics = insuranceDiagnostics
             insuranceTask = Task {
                 while !Task.isCancelled {
                     let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
-                    try? await scheduler.schedule(alarm, fireDate: insuranceDate)
+                    do {
+                        try await scheduler.schedule(alarm, fireDate: insuranceDate)
+                        await diagnostics.record(targetFireDate: insuranceDate, outcome: "scheduled")
+                    } catch {
+                        // Deliberately NOT swallowed via `try?` here (unlike
+                        // most other best-effort scheduler calls in this
+                        // file) -- this loop is the only thing standing
+                        // between a force-quit mid-mission and the alarm
+                        // staying silently, permanently dismissed, so a
+                        // failure here needs to be visible on the next
+                        // launch (see InsuranceDiagnosticsLog), not silently
+                        // discarded.
+                        await diagnostics.record(targetFireDate: insuranceDate, outcome: "failed: \(error.localizedDescription)")
+                    }
                     try? await Task.sleep(for: .seconds(Self.missionInsuranceHeartbeat))
                 }
             }
