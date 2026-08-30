@@ -22,6 +22,12 @@ actor MissionInsuranceStateStore {
     struct InProgressMission: Codable {
         let alarmID: UUID
         let action: MissionAction
+        /// AlarmKit IDs of the independent "shadow" insurance registrations
+        /// from `AlarmCoordinator.startMission`'s burst -- persisted so they
+        /// can be cancelled (by any process instance, including a fresh one
+        /// after a relaunch) once the mission actually finishes, rather than
+        /// firing spuriously after the user is already done.
+        var shadowIDs: [UUID] = []
     }
 
     private let fileURL: URL

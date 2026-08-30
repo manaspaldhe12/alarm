@@ -249,12 +249,14 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(h.audioPlayer.stopCount, 0, "cancelling a mission must not stop the alarm sound")
     }
 
-    func testStartingAMissionSchedulesAnInsuranceRearmAgainstForceQuit() async throws {
+    func testStartingAMissionSchedulesAnInsuranceBurstAgainstForceQuit() async throws {
         // Tapping Turn Off/Snooze on AlarmKit's own system alert appears to silence its native
         // alert immediately, regardless of our custom stopIntent/secondaryIntent (which only
-        // opens the app). Without this insurance re-arm, force-quitting the app before actually
-        // finishing the mission would leave the alarm silently, permanently dismissed --
-        // defeating the entire point of gating dismissal behind a mission.
+        // opens the app) -- and on-device testing found even a *live* re-arm loop isn't safe to
+        // depend on, since it can lose the race against an instant force-quit. Instead
+        // startMission commits a whole burst of independent, staggered shadow registrations up
+        // front -- each one is durable once its own call returns, so losing the process
+        // afterward can't wipe out more than whichever ones hadn't landed yet.
         let h = makeHarness()
         await h.coordinator.refreshAuthorization()
         var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
@@ -262,35 +264,41 @@ final class AlarmCoordinatorTests: XCTestCase {
         await h.coordinator.updateAlarm(alarm)
         await h.coordinator.presentRingingAlarm(alarm.id)
 
-        let beforeCount = h.scheduler.scheduledCalls.count
         h.coordinator.beginTurnOff()
 
-        // The insurance re-arm is a fire-and-forget Task inside startMission (which is
+        // The insurance burst is a fire-and-forget Task inside startMission (which is
         // synchronous, matching beginTurnOff()/beginSnooze() being plain SwiftUI button
         // actions, so it can't be awaited directly) -- give it a beat to actually run.
-        var found = false
+        var calls: [(shadowID: UUID, alarm: Alarm, fireDate: Date)] = []
         for _ in 0..<40 {
-            if h.scheduler.scheduledCalls.count > beforeCount {
-                found = true
-                break
-            }
+            calls = h.scheduler.shadowInsuranceCalls
+            if calls.count == AlarmCoordinator.insuranceShadowCount { break }
             try await Task.sleep(nanoseconds: 25_000_000)
         }
-        XCTAssertTrue(found, "starting a mission should schedule an insurance re-arm")
-
-        let insuranceCall = try XCTUnwrap(h.scheduler.scheduledCalls.last)
-        XCTAssertEqual(insuranceCall.alarm.id, alarm.id)
-        let fireDate = try XCTUnwrap(insuranceCall.fireDate)
         XCTAssertEqual(
-            fireDate.timeIntervalSinceNow, AlarmCoordinator.missionInsuranceDelay, accuracy: 5,
-            "the insurance re-arm should fire well before the mission could ever be abandoned indefinitely"
+            calls.count, AlarmCoordinator.insuranceShadowCount,
+            "starting a mission should immediately commit a full burst of independent shadow re-arms"
         )
+        XCTAssertTrue(calls.allSatisfy { $0.alarm.id == alarm.id })
+        XCTAssertEqual(
+            Set(calls.map(\.shadowID)).count, calls.count,
+            "each shadow registration must use its own distinct id, not overwrite a shared one"
+        )
+
+        let fireOffsets = calls.map { $0.fireDate.timeIntervalSinceNow }.sorted()
+        for (index, offset) in fireOffsets.enumerated() {
+            XCTAssertEqual(
+                offset, AlarmCoordinator.insuranceShadowSpacing * Double(index + 1), accuracy: 5,
+                "shadow fire dates should be staggered \(AlarmCoordinator.insuranceShadowSpacing)s apart, covering a window no single live re-arm could"
+            )
+        }
     }
 
     func testInsuranceReArmRecordsSuccessInDiagnosticsLog() async throws {
         // The diagnostics log (see InsuranceDiagnosticsLog) exists specifically to answer,
-        // after a real force-quit, whether the insurance loop's schedule() calls actually
-        // succeeded -- this guards that a successful call really does get recorded.
+        // after a real force-quit, whether the insurance burst's schedule calls actually
+        // succeeded -- this guards that every successful call in the burst really does get
+        // recorded, one entry each.
         let h = makeHarness()
         await h.coordinator.refreshAuthorization()
         var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
@@ -303,11 +311,11 @@ final class AlarmCoordinatorTests: XCTestCase {
         var entries: [InsuranceDiagnosticsLog.Entry] = []
         for _ in 0..<40 {
             entries = await h.coordinator.insuranceDiagnostics.load()
-            if !entries.isEmpty { break }
+            if entries.count == AlarmCoordinator.insuranceShadowCount { break }
             try await Task.sleep(nanoseconds: 25_000_000)
         }
-        XCTAssertEqual(entries.count, 1)
-        XCTAssertEqual(entries.first?.outcome, "scheduled")
+        XCTAssertEqual(entries.count, AlarmCoordinator.insuranceShadowCount)
+        XCTAssertTrue(entries.allSatisfy { $0.outcome == "scheduled" })
     }
 
     func testInsuranceReArmRecordsFailureInDiagnosticsLog() async throws {
@@ -315,8 +323,8 @@ final class AlarmCoordinatorTests: XCTestCase {
         await h.coordinator.refreshAuthorization()
         var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
         alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
-        await h.coordinator.updateAlarm(alarm) // succeeds -- failure is injected after, so only the insurance re-arm itself is affected
-        h.scheduler.scheduleFailureIDs.insert(alarm.id)
+        await h.coordinator.updateAlarm(alarm) // succeeds -- failure is injected after, so only the insurance burst itself is affected
+        h.scheduler.shadowInsuranceShouldFail = true
         await h.coordinator.presentRingingAlarm(alarm.id)
 
         h.coordinator.beginTurnOff()
@@ -324,13 +332,13 @@ final class AlarmCoordinatorTests: XCTestCase {
         var entries: [InsuranceDiagnosticsLog.Entry] = []
         for _ in 0..<40 {
             entries = await h.coordinator.insuranceDiagnostics.load()
-            if !entries.isEmpty { break }
+            if entries.count == AlarmCoordinator.insuranceShadowCount { break }
             try await Task.sleep(nanoseconds: 25_000_000)
         }
-        XCTAssertEqual(entries.count, 1)
+        XCTAssertEqual(entries.count, AlarmCoordinator.insuranceShadowCount)
         XCTAssertTrue(
-            entries.first?.outcome.hasPrefix("failed:") ?? false,
-            "a scheduler failure must be visible in the diagnostics log, not silently swallowed -- got \(String(describing: entries.first?.outcome))"
+            entries.allSatisfy { $0.outcome.hasPrefix("failed:") },
+            "a scheduler failure must be visible in the diagnostics log, not silently swallowed -- got \(entries.map(\.outcome))"
         )
     }
 

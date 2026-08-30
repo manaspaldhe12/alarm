@@ -9,6 +9,21 @@ protocol AlarmScheduler: Sendable {
     /// When `fireDate` is provided, it installs a one-shot override at that
     /// exact date regardless of recurrence — used for snoozing.
     func schedule(_ alarm: Alarm, fireDate: Date?) async throws
+
+    /// Schedules an *independent* AlarmKit registration under `shadowID`
+    /// (distinct from `alarm.id`) that, when it fires, routes back to
+    /// `alarm` the same way a real alert would (same buttons, same
+    /// stop/secondary intents opening the app to `alarm.id`'s mission).
+    ///
+    /// Used to pre-commit several staggered future re-alerts up front (see
+    /// `AlarmCoordinator.startMission`'s insurance burst) instead of
+    /// depending on a live process to keep re-arming a single ID
+    /// just-in-time -- each call here is independently durable once it
+    /// returns, so a force-quit immediately after issuing a whole burst
+    /// still leaves every one of them intact, not just whichever one
+    /// happened to be scheduled most recently.
+    func scheduleShadowInsurance(shadowID: UUID, for alarm: Alarm, fireDate: Date) async throws
+
     func cancel(alarmID: UUID) async throws
     func stop(alarmID: UUID) async throws
     func alertingAlarmIDs() async -> [UUID]

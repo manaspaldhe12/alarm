@@ -14,6 +14,7 @@ struct FakeError: Error, LocalizedError {
 final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
     var authorizationResult: Bool = true
     private(set) var scheduledCalls: [(alarm: Alarm, fireDate: Date?)] = []
+    private(set) var shadowInsuranceCalls: [(shadowID: UUID, alarm: Alarm, fireDate: Date)] = []
     private(set) var cancelledIDs: [UUID] = []
     private(set) var stoppedIDs: [UUID] = []
     var alerting: Set<UUID> = []
@@ -25,6 +26,11 @@ final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
     /// Alarm IDs for which `schedule(_:fireDate:)` should throw instead of
     /// succeeding, to test failure-handling paths.
     var scheduleFailureIDs: Set<UUID> = []
+    /// When true, every `scheduleShadowInsurance` call throws -- shadow ids
+    /// are randomly generated inside `AlarmCoordinator.startMission`, so
+    /// (unlike `scheduleFailureIDs`) a test can't know one to target ahead
+    /// of time.
+    var shadowInsuranceShouldFail = false
 
     func requestAuthorizationIfNeeded() async throws -> Bool { authorizationResult }
 
@@ -33,6 +39,13 @@ final class FakeAlarmScheduler: AlarmScheduler, @unchecked Sendable {
             throw FakeError("schedule() failed for \(alarm.id)")
         }
         scheduledCalls.append((alarm, fireDate))
+    }
+
+    func scheduleShadowInsurance(shadowID: UUID, for alarm: Alarm, fireDate: Date) async throws {
+        if shadowInsuranceShouldFail {
+            throw FakeError("scheduleShadowInsurance() failed for \(shadowID)")
+        }
+        shadowInsuranceCalls.append((shadowID, alarm, fireDate))
     }
 
     func cancel(alarmID: UUID) async throws {

@@ -136,7 +136,7 @@ final class AlarmCoordinator {
         if isCurrentAlarm(id) {
             insuranceTask?.cancel()
             insuranceTask = nil
-            await missionInsuranceState.save(nil)
+            await retireOutstandingShadows(for: id)
         }
 
         // Best-effort: the alarm may have already fired and been
@@ -231,27 +231,25 @@ final class AlarmCoordinator {
         startMission(alarmID: alarmID, action: .turnOff, configuration: alarm.turnOffMission)
     }
 
-    /// How far out each individual insurance re-arm (see `startMission`)
-    /// sets the alarm's next fire date. Apple's own AlarmKit FAQ says a
-    /// successfully-scheduled alarm "is expected to persist regardless of
-    /// app or device state changes" (developer.apple.com/forums/thread/797158)
-    /// -- i.e. this re-arm is honored by the system daemon, not this app's
-    /// process, so it isn't at risk of being killed mid-flight the way the
-    /// in-app mission sound is. That's what lets this be short: the only
-    /// real ceiling is leaving enough headroom for the schedule() call
-    /// itself to land before its own fire date arrives, and not cycling
-    /// AlarmKit's stop/re-arm so fast it trips known dismiss/re-alert edge
-    /// cases (e.g. the "zombie Live Activity" bug tracked at
-    /// developer.apple.com/forums/thread/819556).
-    static let missionInsuranceDelay: TimeInterval = 6
-    /// How often the insurance loop in `startMission` refreshes that fire
-    /// date while a mission is genuinely still in progress. Must be well
-    /// under `missionInsuranceDelay` so a legitimate, still-running mission
-    /// (the app alive and the user actually working on it) always renews
-    /// its cover before the previous fire date could ever arrive -- only an
-    /// app that's actually gone (force-quit, crashed, killed by the system)
-    /// lets a scheduled fire date go unrefreshed and actually arrive.
-    private static let missionInsuranceHeartbeat: TimeInterval = 3
+    /// How many independent "shadow" AlarmKit registrations each insurance
+    /// burst (see `startMission`) pre-commits at once, and how far apart
+    /// their fire dates are staggered.
+    ///
+    /// Modeled on how other iOS alarm apps survive a force-quit: rather
+    /// than depending on a live process to keep re-arming a *single* alarm
+    /// ID just-in-time (which fails outright if the process dies before the
+    /// next re-arm call completes -- confirmed on-device: swiping away from
+    /// a bare, untouched ringing screen was already enough to lose the
+    /// alert entirely), pre-commit several *independent* registrations up
+    /// front. Apple's own AlarmKit FAQ says a successfully-scheduled alarm
+    /// "is expected to persist regardless of app or device state changes"
+    /// (developer.apple.com/forums/thread/797158) -- each shadow, once its
+    /// own schedule() call returns, is durable at the system level
+    /// regardless of this app's process, so a force-quit immediately after
+    /// the whole burst completes still leaves every one of them intact, not
+    /// just whichever single one happened to be scheduled most recently.
+    static let insuranceShadowCount = 6
+    static let insuranceShadowSpacing: TimeInterval = 12
 
     /// The alarm sound deliberately keeps playing through the whole mission
     /// attempt — silencing it here (as this used to do) removed the
@@ -263,12 +261,8 @@ final class AlarmCoordinator {
     private func startMission(alarmID: UUID, action: MissionAction, configuration: MissionConfiguration) {
         // A retry (failed/cancelled mission -> back to .ringing -> tapped
         // again) calls this a second time -- cancel any still-outstanding
-        // insurance re-arm from the previous attempt first, since it's
-        // superseded by the new one below (cancellation is cooperative and
-        // won't necessarily abort an in-flight AlarmKit call already past
-        // the isCancelled check, but combined with performSnooze/
-        // performTurnOff awaiting `insuranceTask` before doing their own
-        // real scheduling, this keeps the window for a stale race small).
+        // insurance Task from the previous attempt first, since it's
+        // superseded by the new one below.
         insuranceTask?.cancel()
 
         currentMissionSession = missionCoordinator.makeSession(for: configuration)
@@ -284,55 +278,86 @@ final class AlarmCoordinator {
         // alarm would otherwise just stay silently dismissed with nothing
         // ever having been asked of the user -- defeating the entire point
         // of gating dismissal behind a mission.
-        //
-        // The in-app mission sound itself (AlarmAudioPlayer) is ordinary
-        // app-process audio -- like any third-party app's, it cannot survive
-        // a real force-quit, since the whole process is killed. What *can*
-        // survive that is AlarmKit's own native alert: it's honored by the
-        // system daemon regardless of this app's process state (see
-        // missionInsuranceDelay's doc comment), the same mechanism apps like
-        // Alarmy rely on via local notifications pre-AlarmKit. So rather
-        // than a single one-shot re-arm, this loops the whole time a
-        // mission is in progress, continually pushing the next native fire
-        // date `missionInsuranceDelay` out every `missionInsuranceHeartbeat`.
-        // As long as the app (and this Task) is alive, each refresh lands
-        // well before the previous fire date could ever arrive, so a
-        // legitimate in-progress mission never triggers a spurious extra
-        // alert. The moment the app actually dies, the most recent fire
-        // date is the last thing that got scheduled -- bounding how long
-        // the alarm can stay silent to roughly `missionInsuranceDelay`, not
-        // indefinitely. performSnooze/performTurnOff cancel and await this
-        // Task before doing their own real (and final) scheduling, so their
-        // call is always the last word rather than racing this one.
-        if let alarm = alarms.first(where: { $0.id == alarmID }) {
-            let diagnostics = insuranceDiagnostics
-            let missionState = missionInsuranceState
-            insuranceTask = Task {
-                // Persisted first, before the loop even starts, so a relaunch
-                // sees this mission was in progress even if the process dies
-                // before the loop's very first schedule() call completes --
-                // see MissionInsuranceStateStore and presentRingingAlarm.
-                await missionState.save(.init(alarmID: alarmID, action: action))
-                while !Task.isCancelled {
-                    let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
-                    do {
-                        try await scheduler.schedule(alarm, fireDate: insuranceDate)
-                        await diagnostics.record(targetFireDate: insuranceDate, outcome: "scheduled")
-                    } catch {
-                        // Deliberately NOT swallowed via `try?` here (unlike
-                        // most other best-effort scheduler calls in this
-                        // file) -- this loop is the only thing standing
-                        // between a force-quit mid-mission and the alarm
-                        // staying silently, permanently dismissed, so a
-                        // failure here needs to be visible on the next
-                        // launch (see InsuranceDiagnosticsLog), not silently
-                        // discarded.
-                        await diagnostics.record(targetFireDate: insuranceDate, outcome: "failed: \(error.localizedDescription)")
+        guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
+
+        let diagnostics = insuranceDiagnostics
+        let missionState = missionInsuranceState
+        let scheduler = self.scheduler
+        insuranceTask = Task {
+            // Retire any stale shadow batch from a previous attempt for this
+            // same alarm (a retry within this process, or a resume after a
+            // relaunch that found a batch this process never got to clean
+            // up) before committing a fresh one below.
+            if let stale = await missionState.load(), stale.alarmID == alarmID {
+                for shadowID in stale.shadowIDs {
+                    try? await scheduler.stop(alarmID: shadowID)
+                    try? await scheduler.cancel(alarmID: shadowID)
+                }
+            }
+
+            while !Task.isCancelled {
+                let shadowIDs = (0..<Self.insuranceShadowCount).map { _ in UUID() }
+                // Persisted before the burst even fires, so a relaunch knows
+                // both that this mission was in progress and exactly which
+                // shadow IDs to clean up later, even if the process dies
+                // mid-burst -- see MissionInsuranceStateStore and
+                // presentRingingAlarm.
+                await missionState.save(.init(alarmID: alarmID, action: action, shadowIDs: shadowIDs))
+
+                await withTaskGroup(of: Void.self) { group in
+                    for (index, shadowID) in shadowIDs.enumerated() {
+                        group.addTask {
+                            let fireDate = Date().addingTimeInterval(Self.insuranceShadowSpacing * Double(index + 1))
+                            do {
+                                try await scheduler.scheduleShadowInsurance(shadowID: shadowID, for: alarm, fireDate: fireDate)
+                                await diagnostics.record(targetFireDate: fireDate, outcome: "scheduled")
+                            } catch {
+                                // Deliberately NOT swallowed via `try?` here
+                                // (unlike most other best-effort scheduler
+                                // calls in this file) -- this burst is the
+                                // only thing standing between a force-quit
+                                // mid-mission and the alarm staying
+                                // silently, permanently dismissed, so a
+                                // failure here needs to be visible on the
+                                // next launch (see InsuranceDiagnosticsLog),
+                                // not silently discarded.
+                                await diagnostics.record(targetFireDate: fireDate, outcome: "failed: \(error.localizedDescription)")
+                            }
+                        }
                     }
-                    try? await Task.sleep(for: .seconds(Self.missionInsuranceHeartbeat))
+                }
+
+                // While the process stays alive, refresh with a fresh batch
+                // partway through this one's coverage window -- a
+                // long-running mission (e.g. genuinely walking 50 steps)
+                // shouldn't be able to outlast the window and go uncovered.
+                let refreshDelay = Self.insuranceShadowSpacing * Double(Self.insuranceShadowCount) / 2
+                try? await Task.sleep(for: .seconds(refreshDelay))
+                guard !Task.isCancelled else { break }
+                // A legitimate in-progress mission should never let two
+                // batches' alerts collide -- retire this batch just before
+                // the next loop iteration commits its replacement.
+                for shadowID in shadowIDs {
+                    try? await scheduler.stop(alarmID: shadowID)
+                    try? await scheduler.cancel(alarmID: shadowID)
                 }
             }
         }
+    }
+
+    /// Cancels every outstanding insurance shadow registration for
+    /// `alarmID` (if any are currently persisted) and clears the in-progress
+    /// flag -- called once a mission is genuinely, definitively done (or the
+    /// alarm it belonged to is deleted), so none of them fire spuriously
+    /// after the fact. Safe to call even with nothing outstanding.
+    private func retireOutstandingShadows(for alarmID: UUID) async {
+        if let inProgress = await missionInsuranceState.load(), inProgress.alarmID == alarmID {
+            for shadowID in inProgress.shadowIDs {
+                try? await scheduler.stop(alarmID: shadowID)
+                try? await scheduler.cancel(alarmID: shadowID)
+            }
+        }
+        await missionInsuranceState.save(nil)
     }
 
     func missionFinished(_ result: MissionResult) {
@@ -395,8 +420,10 @@ final class AlarmCoordinator {
             // Only on this definitively-successful path -- a thrown error
             // below (caught below) means the mission itself was completed
             // but scheduling the snooze wasn't, so the user is dumped back
-            // to .ringing and still genuinely needs insurance coverage.
-            await missionInsuranceState.save(nil)
+            // to .ringing and still genuinely needs insurance coverage
+            // (including its outstanding shadow registrations, left alone
+            // below in that case).
+            await retireOutstandingShadows(for: alarmID)
             currentQuote = await quoteCoordinator.quote(for: .snoozed)
             runtimeState = .snoozed(until: snoozeUntil, alarmID: alarmID)
         } catch {
@@ -430,7 +457,7 @@ final class AlarmCoordinator {
             await audioPlayer.stop()
 
             guard var alarm = alarms.first(where: { $0.id == alarmID }) else {
-                await missionInsuranceState.save(nil)
+                await retireOutstandingShadows(for: alarmID)
                 runtimeState = .idle
                 return
             }
@@ -469,7 +496,7 @@ final class AlarmCoordinator {
             await wakeUpCoordinator.schedule(for: alarm)
 
             // Definitively-successful path only -- see performSnooze's same call.
-            await missionInsuranceState.save(nil)
+            await retireOutstandingShadows(for: alarmID)
             currentQuote = await quoteCoordinator.quote(for: .alarmCompleted)
             runtimeState = .morningComplete(alarmID: alarmID)
         } catch {

@@ -29,6 +29,44 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
     }
 
     func schedule(_ alarm: Alarm, fireDate: Date?) async throws {
+        let configuration = makeConfiguration(
+            resumingAlarmID: alarm.id,
+            label: alarm.label,
+            sound: alarm.sound,
+            preAlert: alarm.gentleWake.enabled ? alarm.gentleWake.duration : nil,
+            postAlert: alarm.snooze.duration,
+            schedule: alarmKitSchedule(for: alarm, fireDate: fireDate)
+        )
+        try await manager.schedule(id: alarm.id, configuration: configuration)
+    }
+
+    func scheduleShadowInsurance(shadowID: UUID, for alarm: Alarm, fireDate: Date) async throws {
+        // No gentle wake -- a shadow only ever exists to bring the user back
+        // to a mission already in progress, never as a first ring.
+        let configuration = makeConfiguration(
+            resumingAlarmID: alarm.id,
+            label: alarm.label,
+            sound: alarm.sound,
+            preAlert: nil,
+            postAlert: alarm.snooze.duration,
+            schedule: .fixed(fireDate)
+        )
+        try await manager.schedule(id: shadowID, configuration: configuration)
+    }
+
+    /// Shared by `schedule(_:fireDate:)` and `scheduleShadowInsurance` --
+    /// `resumingAlarmID` is the domain alarm the stop/secondary intents open
+    /// the app back to, which is deliberately *not* always the same as the
+    /// id this configuration gets registered under (see
+    /// `scheduleShadowInsurance`'s doc comment).
+    private func makeConfiguration(
+        resumingAlarmID: UUID,
+        label: String,
+        sound soundConfig: AlarmSoundConfiguration,
+        preAlert: TimeInterval?,
+        postAlert: TimeInterval,
+        schedule: AlarmKit.Alarm.Schedule
+    ) -> AlarmManager.AlarmConfiguration<MorningAlarmMetadata> {
         typealias Configuration = AlarmManager.AlarmConfiguration<MorningAlarmMetadata>
 
         let stopButton = AlarmButton(
@@ -60,26 +98,23 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
 
         let attributes = AlarmAttributes<MorningAlarmMetadata>(
             presentation: AlarmPresentation(alert: alert),
-            metadata: MorningAlarmMetadata(label: alarm.label),
+            metadata: MorningAlarmMetadata(label: label),
             tintColor: .orange
         )
 
-        let countdownDuration = AlarmKit.Alarm.CountdownDuration(
-            preAlert: alarm.gentleWake.enabled ? alarm.gentleWake.duration : nil,
-            postAlert: alarm.snooze.duration
-        )
-        let schedule = alarmKitSchedule(for: alarm, fireDate: fireDate)
+        let countdownDuration = AlarmKit.Alarm.CountdownDuration(preAlert: preAlert, postAlert: postAlert)
+
         let sound: AlertConfiguration.AlertSound
-        switch alarm.sound {
+        switch soundConfig {
         case .systemDefault:
             sound = .default
         case .bundled(let fileName):
             sound = .named("\(fileName).wav")
         }
 
-        let openIntent = OpenAlarmIntent(alarmID: alarm.id.uuidString)
+        let openIntent = OpenAlarmIntent(alarmID: resumingAlarmID.uuidString)
 
-        let configuration = Configuration(
+        return Configuration(
             countdownDuration: countdownDuration,
             schedule: schedule,
             attributes: attributes,
@@ -87,8 +122,6 @@ final class AlarmKitScheduler: AlarmScheduler, @unchecked Sendable {
             secondaryIntent: openIntent,
             sound: sound
         )
-
-        try await manager.schedule(id: alarm.id, configuration: configuration)
     }
 
     func cancel(alarmID: UUID) async throws {

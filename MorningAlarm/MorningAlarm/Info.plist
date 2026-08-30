@@ -26,6 +26,10 @@
 	<string>Morning Alarm uses the camera to scan QR codes you've placed around your home, entirely on-device, to confirm you've gotten up and moved somewhere.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Morning Alarm counts your steps, entirely on-device, to confirm you're up and moving before your alarm turns off.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
