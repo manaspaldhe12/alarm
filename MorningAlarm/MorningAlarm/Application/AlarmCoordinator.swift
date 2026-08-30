@@ -33,6 +33,8 @@ final class AlarmCoordinator {
     let wakeUpCoordinator: WakeUpCoordinator
     let appLauncher: ExternalAppLauncher
     let insuranceDiagnostics: InsuranceDiagnosticsLog
+    /// Internal (not private) so tests can assert on it directly.
+    let missionInsuranceState: MissionInsuranceStateStore
 
     private var observationTask: Task<Void, Never>?
     /// Internal (not private) get so `@testable import` can assert on it.
@@ -57,7 +59,8 @@ final class AlarmCoordinator {
         quoteCoordinator: QuoteCoordinator,
         wakeUpCoordinator: WakeUpCoordinator,
         appLauncher: ExternalAppLauncher,
-        insuranceDiagnostics: InsuranceDiagnosticsLog = InsuranceDiagnosticsLog()
+        insuranceDiagnostics: InsuranceDiagnosticsLog = InsuranceDiagnosticsLog(),
+        missionInsuranceState: MissionInsuranceStateStore = MissionInsuranceStateStore()
     ) {
         self.repository = repository
         self.scheduler = scheduler
@@ -67,6 +70,7 @@ final class AlarmCoordinator {
         self.wakeUpCoordinator = wakeUpCoordinator
         self.appLauncher = appLauncher
         self.insuranceDiagnostics = insuranceDiagnostics
+        self.missionInsuranceState = missionInsuranceState
     }
 
     func start() async {
@@ -132,6 +136,7 @@ final class AlarmCoordinator {
         if isCurrentAlarm(id) {
             insuranceTask?.cancel()
             insuranceTask = nil
+            await missionInsuranceState.save(nil)
         }
 
         // Best-effort: the alarm may have already fired and been
@@ -183,7 +188,7 @@ final class AlarmCoordinator {
     // MARK: - Ringing flow
 
     func presentRingingAlarm(_ alarmID: UUID) async {
-        guard alarms.contains(where: { $0.id == alarmID }) else { return }
+        guard let alarm = alarms.first(where: { $0.id == alarmID }) else { return }
         // Only reset the snooze count on a genuinely fresh cycle (coming from
         // .idle). A post-snooze re-ring arrives from .snoozed — resetting
         // there too would silently defeat maxSnoozes, since every re-ring
@@ -192,9 +197,21 @@ final class AlarmCoordinator {
             snoozeCounts[alarmID] = 0
         }
         runtimeState = .ringing(alarmID: alarmID)
+        try? audioPlayer.playAlarmSound(alarm.sound)
 
-        if let alarm = alarms.first(where: { $0.id == alarmID }) {
-            try? audioPlayer.playAlarmSound(alarm.sound)
+        // If this alarm had a mission genuinely in progress the last time we
+        // knew about it (persisted by startMission, cleared on completion —
+        // see MissionInsuranceStateStore), this ring is very likely
+        // AlarmKit's own insurance re-arm firing again after the app was
+        // force-quit mid-mission, not a fresh alarm. Jump straight back into
+        // that same mission (restarting its insurance coverage) instead of
+        // leaving the user at a bare .ringing screen that needs a button tap
+        // before any protection resumes -- without this, a *second*
+        // force-quit (before that tap) would have nothing left to re-arm it
+        // a second time.
+        if let inProgress = await missionInsuranceState.load(), inProgress.alarmID == alarmID {
+            let configuration = inProgress.action == .snooze ? alarm.snooze.mission : alarm.turnOffMission
+            startMission(alarmID: alarmID, action: inProgress.action, configuration: configuration)
         }
     }
 
@@ -289,7 +306,13 @@ final class AlarmCoordinator {
         // call is always the last word rather than racing this one.
         if let alarm = alarms.first(where: { $0.id == alarmID }) {
             let diagnostics = insuranceDiagnostics
+            let missionState = missionInsuranceState
             insuranceTask = Task {
+                // Persisted first, before the loop even starts, so a relaunch
+                // sees this mission was in progress even if the process dies
+                // before the loop's very first schedule() call completes --
+                // see MissionInsuranceStateStore and presentRingingAlarm.
+                await missionState.save(.init(alarmID: alarmID, action: action))
                 while !Task.isCancelled {
                     let insuranceDate = Date().addingTimeInterval(Self.missionInsuranceDelay)
                     do {
@@ -369,6 +392,11 @@ final class AlarmCoordinator {
             let snoozeUntil = Date().addingTimeInterval(alarm.snooze.duration)
             try await scheduler.schedule(alarm, fireDate: snoozeUntil)
             await audioPlayer.stop()
+            // Only on this definitively-successful path -- a thrown error
+            // below (caught below) means the mission itself was completed
+            // but scheduling the snooze wasn't, so the user is dumped back
+            // to .ringing and still genuinely needs insurance coverage.
+            await missionInsuranceState.save(nil)
             currentQuote = await quoteCoordinator.quote(for: .snoozed)
             runtimeState = .snoozed(until: snoozeUntil, alarmID: alarmID)
         } catch {
@@ -402,6 +430,7 @@ final class AlarmCoordinator {
             await audioPlayer.stop()
 
             guard var alarm = alarms.first(where: { $0.id == alarmID }) else {
+                await missionInsuranceState.save(nil)
                 runtimeState = .idle
                 return
             }
@@ -439,6 +468,8 @@ final class AlarmCoordinator {
             await wakeUpCoordinator.cancelPending(forOriginalAlarmID: alarmID)
             await wakeUpCoordinator.schedule(for: alarm)
 
+            // Definitively-successful path only -- see performSnooze's same call.
+            await missionInsuranceState.save(nil)
             currentQuote = await quoteCoordinator.quote(for: .alarmCompleted)
             runtimeState = .morningComplete(alarmID: alarmID)
         } catch {

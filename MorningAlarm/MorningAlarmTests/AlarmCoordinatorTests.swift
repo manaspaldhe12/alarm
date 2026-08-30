@@ -41,7 +41,8 @@ final class AlarmCoordinatorTests: XCTestCase {
             quoteCoordinator: quoteCoordinator,
             wakeUpCoordinator: wakeUpCoordinator,
             appLauncher: appLauncher,
-            insuranceDiagnostics: InsuranceDiagnosticsLog(fileURL: tempFileURL("insurance-diagnostics-\(UUID().uuidString)"))
+            insuranceDiagnostics: InsuranceDiagnosticsLog(fileURL: tempFileURL("insurance-diagnostics-\(UUID().uuidString)")),
+            missionInsuranceState: MissionInsuranceStateStore(fileURL: tempFileURL("mission-in-progress-\(UUID().uuidString)"))
         )
 
         return Harness(coordinator: coordinator, scheduler: scheduler, audioPlayer: audioPlayer, repository: repository, appLauncher: appLauncher)
@@ -331,6 +332,65 @@ final class AlarmCoordinatorTests: XCTestCase {
             entries.first?.outcome.hasPrefix("failed:") ?? false,
             "a scheduler failure must be visible in the diagnostics log, not silently swallowed -- got \(String(describing: entries.first?.outcome))"
         )
+    }
+
+    func testPresentRingingAlarmResumesInProgressMissionAfterReRing() async throws {
+        // Simulates AlarmKit's insurance re-arm firing again after a force-quit mid-mission:
+        // presentRingingAlarm gets called again (as syncAlertingAlarms' poll loop would after a
+        // real relaunch) for an alarm that was already mid-mission per the persisted
+        // MissionInsuranceStateStore flag. It should jump straight back into that same mission
+        // (and restart insurance coverage) rather than leaving the user at a bare .ringing screen
+        // that needs another button tap before any protection resumes -- without this, a second
+        // force-quit before that tap would have nothing left to re-arm the alarm a second time.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .steps(count: 999_999) // never completes on its own
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        XCTAssertEqual(h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff))
+
+        // The persisted flag should already be written by now -- startMission saves it before its
+        // insurance loop even does its first schedule() call.
+        var inProgress: MissionInsuranceStateStore.InProgressMission?
+        for _ in 0..<40 {
+            inProgress = await h.coordinator.missionInsuranceState.load()
+            if inProgress != nil { break }
+            try await Task.sleep(nanoseconds: 25_000_000)
+        }
+        XCTAssertEqual(inProgress?.alarmID, alarm.id)
+        XCTAssertEqual(inProgress?.action, .turnOff)
+
+        // A real force-quit just kills the process with no graceful cleanup -- simulate that by
+        // re-ringing directly, without ever calling missionFinished.
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        XCTAssertEqual(
+            h.coordinator.runtimeState, .runningMission(alarmID: alarm.id, action: .turnOff),
+            "a re-ring for an alarm with a mission still in progress should resume that mission immediately"
+        )
+    }
+
+    func testCompletingMissionClearsInProgressFlagSoALaterRingDoesNotAutoEscalate() async throws {
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+        var alarm = Alarm(time: LocalTime(hour: 7, minute: 0))
+        alarm.turnOffMission = .none
+        await h.coordinator.updateAlarm(alarm)
+        await h.coordinator.presentRingingAlarm(alarm.id)
+
+        h.coordinator.beginTurnOff()
+        try await waitForMissionResult(h)
+
+        guard case .morningComplete = h.coordinator.runtimeState else {
+            XCTFail("expected .morningComplete, got \(h.coordinator.runtimeState)")
+            return
+        }
+
+        let persisted = await h.coordinator.missionInsuranceState.load()
+        XCTAssertNil(persisted, "a genuinely completed mission must clear the in-progress flag, or every later ring would wrongly auto-escalate into a mission")
     }
 
     func testDeleteAlarmCancelsSchedulerAndPendingWakeUpCheck() async {

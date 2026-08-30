@@ -13,7 +13,7 @@ enum AlarmRuntimeState: Equatable {
     case morningComplete(alarmID: UUID)
 }
 
-enum MissionAction: Equatable {
+enum MissionAction: Codable, Equatable {
     case snooze
     case turnOff
 }

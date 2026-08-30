@@ -89,6 +89,7 @@
 		BLF0000000000000000000080 /* VolumeForcer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000081 /* VolumeForcer.swift */; };
 		BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */; };
 		BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */; };
+		BLF0000000000000000000083 /* MissionInsuranceStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -209,6 +210,7 @@
 		FRF0000000000000000000081 /* VolumeForcer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeForcer.swift; sourceTree = "<group>"; };
 		FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsLog.swift; sourceTree = "<group>"; };
 		FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsView.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionInsuranceStateStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -508,7 +510,8 @@
 				FRF0000000000000000000056 /* FileQRCodeRepository.swift */,
 				FRF0000000000000000000057 /* QRCodeRepository.swift */,
 				FRF0000000000000000000058 /* WakeUpCheckStateStore.swift */,
-			);
+							FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */,
+);
 			path = Persistence;
 			sourceTree = "<group>";
 		};
@@ -835,6 +838,7 @@
 							BLF0000000000000000000080 /* VolumeForcer.swift in Sources */,
 				BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */,
 				BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */,
+				BLF0000000000000000000083 /* MissionInsuranceStateStore.swift in Sources */,
 );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
