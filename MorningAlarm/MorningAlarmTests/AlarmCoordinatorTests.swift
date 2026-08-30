@@ -685,6 +685,50 @@ final class AlarmCoordinatorTests: XCTestCase {
         XCTAssertEqual(h.scheduler.scheduledCalls.count, 1, "reconcile must not reschedule an alarm AlarmKit already has a record of")
     }
 
+    func testReconcilePresentsRingingScreenForRecentlyMissedAlarmWithNoAlarmKitRecord() async throws {
+        // On-device testing found AlarmKit's own record of an in-flight alert does not reliably
+        // survive a force-quit -- debugState(for:) comes back nil, indistinguishable from "never
+        // scheduled". Silently rescheduling straight for the alarm's *next* regular occurrence in
+        // that case would mean the user reopens the app, sees nothing wrong, and an alarm they
+        // never actually dealt with just quietly waits until tomorrow with no alert ever shown.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+
+        let fiveMinutesAgo = Calendar.current.dateComponents([.hour, .minute], from: Date().addingTimeInterval(-5 * 60))
+        let alarm = Alarm(time: LocalTime(hour: fiveMinutesAgo.hour ?? 0, minute: fiveMinutesAgo.minute ?? 0))
+        await h.coordinator.updateAlarm(alarm)
+        // No debugStates entry set for this alarm -- AlarmKit has no record of it, as if a
+        // force-quit lost an in-flight alert.
+
+        await h.coordinator.reloadAlarms()
+
+        XCTAssertEqual(
+            h.coordinator.runtimeState, .ringing(alarmID: alarm.id),
+            "a recently-missed alarm with no AlarmKit record should surface the ringing screen, not silently reschedule for tomorrow"
+        )
+    }
+
+    func testReconcileSchedulesNormallyForAFutureAlarmWithNoAlarmKitRecord() async throws {
+        // FakeAlarmScheduler.schedule() doesn't auto-populate debugStates, so this alarm's
+        // debugState is nil after updateAlarm() too -- exactly like a genuinely-never-scheduled
+        // alarm reconcile is meant to catch and fix, as opposed to the "missed" case above.
+        let h = makeHarness()
+        await h.coordinator.refreshAuthorization()
+
+        let inTwoHours = Calendar.current.dateComponents([.hour, .minute], from: Date().addingTimeInterval(2 * 60 * 60))
+        let alarm = Alarm(time: LocalTime(hour: inTwoHours.hour ?? 0, minute: inTwoHours.minute ?? 0))
+        await h.coordinator.updateAlarm(alarm)
+        let countBeforeReload = h.scheduler.scheduledCalls.count
+
+        await h.coordinator.reloadAlarms()
+
+        XCTAssertEqual(h.coordinator.runtimeState, .idle, "a genuinely future alarm must not be treated as missed")
+        XCTAssertEqual(
+            h.scheduler.scheduledCalls.count, countBeforeReload + 1,
+            "reconcile should still schedule a future alarm with no AlarmKit record normally, not skip it"
+        )
+    }
+
     func testSaveAndScheduleRollsBackEnabledOnScheduleFailure() async throws {
         let h = makeHarness()
         await h.coordinator.refreshAuthorization()

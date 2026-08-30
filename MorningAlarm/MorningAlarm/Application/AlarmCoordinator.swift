@@ -529,6 +529,11 @@ final class AlarmCoordinator {
         }
     }
 
+    /// How far in the past an enabled alarm's regular fire time can be and
+    /// still count as "possibly missed" by `reconcileScheduledAlarms`,
+    /// rather than a normal future occurrence.
+    static let missedAlarmGracePeriod: TimeInterval = 20 * 60
+
     private func reconcileScheduledAlarms() async {
         guard authorizationGranted else { return }
 
@@ -541,6 +546,36 @@ final class AlarmCoordinator {
             // (possibly much later) schedule the moment the app relaunches
             // during a snooze window.
             guard await scheduler.debugState(for: alarm.id) == nil else { continue }
+
+            // AlarmKit has *no* record of this alarm at all -- normally
+            // because it's simply never been scheduled yet. But that's also
+            // exactly what it looks like when the alarm was actively
+            // alerting and the app got force-quit before it was
+            // acknowledged: on-device testing showed AlarmKit's own record
+            // of an in-flight alert does not reliably survive that (contrary
+            // to what Apple's AlarmKit FAQ implies -- see the README).
+            // Unconditionally rescheduling straight for the alarm's *next*
+            // regular occurrence in that case means the user reopens the
+            // app, sees nothing wrong, and an alarm they never actually
+            // dealt with just quietly waits until tomorrow with no alert
+            // ever shown. Recompute whether *this* alarm's regular time
+            // already passed recently (within missedAlarmGracePeriod)
+            // rather than having rolled over to a later one -- if so, show
+            // the ringing screen (and let mission-gating apply normally)
+            // instead of silently scheduling past it unacknowledged.
+            let recentFireDate = alarm.nextFireDate(from: Date().addingTimeInterval(-Self.missedAlarmGracePeriod))
+            if recentFireDate <= Date() {
+                // `return`, not `continue`: presentRingingAlarm overwrites
+                // runtimeState, so if some other enabled alarm in this same
+                // loop also qualified, a second call here would silently
+                // stomp this one's ringing presentation. Any other alarm
+                // still needing a plain reschedule this pass will get one
+                // on the next reload instead -- a rare, low-cost tradeoff
+                // against two "missed" alarms colliding.
+                await presentRingingAlarm(alarm.id)
+                return
+            }
+
             do {
                 try await scheduler.schedule(alarm, fireDate: nil)
             } catch {
