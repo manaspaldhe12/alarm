@@ -110,7 +110,9 @@ final class RepositoryTests: XCTestCase {
         let fetchedStoreURL = tempFileURL("fetched-for-repo")
         defer { try? FileManager.default.removeItem(at: fetchedStoreURL) }
         let fetcher = FakeRemotePuzzleFetcher()
-        fetcher.puzzlesToReturn = [makePuzzle("remote1", rating: 1500), makePuzzle("remote2", rating: 1500)]
+        // Rating 50 is well outside the bundled set's real range (400-2200), specifically so
+        // this can't coincidentally collide with a genuine bundled puzzle at the same rating.
+        fetcher.puzzlesToReturn = [makePuzzle("remote1", rating: 50), makePuzzle("remote2", rating: 50)]
 
         let repository = BundledPuzzleRepository(
             fetchedStore: FetchedPuzzleStore(fileURL: fetchedStoreURL),
@@ -125,7 +127,7 @@ final class RepositoryTests: XCTestCase {
         let countAfter = await repository.puzzleCount()
         XCTAssertEqual(countAfter, countBefore + 2, "fetched puzzles must add to, not replace, the bundled pool")
 
-        let matching = try await repository.puzzles(minRating: 1500, maxRating: 1500, count: 10)
+        let matching = try await repository.puzzles(minRating: 50, maxRating: 50, count: 10)
         XCTAssertEqual(Set(matching.map(\.id)), ["remote1", "remote2"], "puzzles() should draw from newly-fetched puzzles too, not just the bundled set")
     }
 
