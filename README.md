@@ -125,12 +125,18 @@ These tests were developed against a stripped, Observation-free copy of the coor
 - **Missions** for snooze, turn-off, and wake-up check, independently configurable per alarm:
   - **Steps** — CoreMotion/`CMPedometer`-backed, with anti-cheat (minimum elapsed time + max plausible step rate to reject shaking)
   - **QR code** — register a code anywhere in your home, scan it on-device (AVFoundation) to complete
-  - **Chess puzzle** — bundled, fully offline puzzle set (`Resources/Puzzles/puzzles.json`), rating-range selectable, validated locally
+  - **Chess puzzle** — 1,451 puzzles bundled offline (`Resources/Puzzles/puzzles.json`, sourced from [Lichess's CC0-licensed puzzle database](https://database.lichess.org/#puzzles)), rating-range selectable, validated locally. The mission screen always shows whose move it is. A separate, explicit **Puzzle Library** screen (square-grid icon in the alarm list toolbar) can fetch a larger pool (2,849 more, same source) over the network on demand — the one deliberate exception to this app's offline-first design; it's never called automatically and never sits on the alarm-dismissal path, so a mission never depends on it. See "Puzzle library" below.
 - **Wake-up check** — a second, independently-scheduled check after a configurable delay, survives app relaunch
 - **Motivational quotes** — bundled, categorized, shown after snooze / turn-off / wake-up check, no immediate repeats
 - **Post-alarm app trigger** — optional "Open Calendar/Weather/etc." after turning off, never required to dismiss
 - Local JSON persistence (alarms, QR registrations, and pending wake-up checks all survive app restart)
 - Widget extension for AlarmKit snooze countdown UI
+
+## Puzzle library
+
+The chess mission's puzzle set is bundled offline (1,451 puzzles, `Resources/Puzzles/puzzles.json`) — that's what every alarm actually relies on, and it always works with zero network access.
+
+The **Puzzle Library** screen (square-grid icon in the alarm list toolbar) is a separate, explicit way to grow that pool: tapping **Fetch More Puzzles** downloads an additional batch (2,849 puzzles, `puzzle-data/remote_puzzles.json` in this repo, served over plain HTTPS via GitHub's raw content) and merges any new ones into a persisted, on-top-of-bundled store (`FetchedPuzzleStore`). This is the one deliberate exception to the app's offline-first design — it's never triggered automatically, and it's only reachable from the alarm list, never from an active alarm or mission, so nothing about dismissing an alarm ever depends on network access. Both puzzle pools are converted from the same source: [Lichess's CC0-licensed puzzle database](https://database.lichess.org/#puzzles) (`scripts/convert_puzzles.py`), which needs no attribution or license to redistribute.
 
 ## Expected behavior
 

@@ -34,11 +34,13 @@ struct AlarmListView: View {
     let qrCodeRepository: QRCodeRepository
     let missionCoordinator: MissionCoordinator
     let stepCounter: StepCounter
+    let puzzleLibrary: BundledPuzzleRepository
 
     @State private var editorTarget: EditorTarget?
     @State private var showingQRSetup = false
     @State private var showingTestMissions = false
     @State private var showingInsuranceLog = false
+    @State private var showingPuzzleLibrary = false
     @State private var debugStates: [UUID: String] = [:]
 
     var body: some View {
@@ -115,6 +117,13 @@ struct AlarmListView: View {
                         Image(systemName: "waveform.path.ecg")
                     }
                 }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showingPuzzleLibrary = true
+                    } label: {
+                        Image(systemName: "square.grid.3x3.fill")
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         editorTarget = .new
@@ -139,6 +148,9 @@ struct AlarmListView: View {
             }
             .sheet(isPresented: $showingInsuranceLog) {
                 InsuranceDiagnosticsView(diagnostics: coordinator.insuranceDiagnostics)
+            }
+            .sheet(isPresented: $showingPuzzleLibrary) {
+                PuzzleLibraryView(puzzleRepository: puzzleLibrary)
             }
             .sheet(isPresented: $showingQRSetup) {
                 QRSetupView(repository: qrCodeRepository)
@@ -212,6 +224,7 @@ struct AlarmRowView: View {
         coordinator: container.alarmCoordinator,
         qrCodeRepository: container.qrCodeRepository,
         missionCoordinator: container.missionCoordinator,
-        stepCounter: container.stepCounter
+        stepCounter: container.stepCounter,
+        puzzleLibrary: container.puzzleLibrary
     )
 }

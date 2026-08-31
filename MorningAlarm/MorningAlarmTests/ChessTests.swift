@@ -137,14 +137,47 @@ final class ChessTests: XCTestCase {
         // This target is hosted by the MorningAlarm app (TEST_HOST/BUNDLE_LOADER), so
         // `Bundle.main` here resolves to the app bundle where puzzles.json actually lives —
         // same default the real BundledPuzzleRepository() uses in the shipping app.
+        // `count` deliberately exceeds the bundled set's actual size so `.prefix(count)`
+        // returns everything (shuffled) -- this must check the *entire* set every run, not
+        // just whatever a smaller random sample happened to include.
         let repository = BundledPuzzleRepository()
-        let puzzles = try await repository.puzzles(minRating: 0, maxRating: 9999, count: 1000)
-        XCTAssertGreaterThan(puzzles.count, 0, "the bundled puzzles.json should have loaded")
+        let puzzles = try await repository.puzzles(minRating: 0, maxRating: 9999, count: 100_000)
+        XCTAssertGreaterThanOrEqual(puzzles.count, 1000, "should have at least 1k bundled puzzles")
 
         for puzzle in puzzles {
             XCTAssertFalse(puzzle.solution.isEmpty, "\(puzzle.id) has an empty solution")
             for uci in puzzle.solution {
                 XCTAssertNotNil(ChessMove(uci: uci), "\(puzzle.id) has an unparseable move: \(uci)")
+            }
+        }
+    }
+
+    func testBundledPuzzleSolutionsAreFullyPlayableFromTheirFEN() async throws {
+        // Structural verification beyond "parseable UCI": replays every puzzle's *entire*
+        // solution sequence against its own starting position, checking each move picks up a
+        // piece of the side actually to move at that point. Catches a puzzle whose fen/solution
+        // don't actually agree with each other, which parseability alone wouldn't.
+        let repository = BundledPuzzleRepository()
+        let puzzles = try await repository.puzzles(minRating: 0, maxRating: 9999, count: 100_000)
+
+        for puzzle in puzzles {
+            var board = ChessBoard(fen: puzzle.fen)
+            XCTAssertEqual(board.sideToMove, puzzle.sideToMove, "\(puzzle.id): fen's active color must match sideToMove")
+
+            for (index, uci) in puzzle.solution.enumerated() {
+                guard let move = ChessMove(uci: uci) else {
+                    XCTFail("\(puzzle.id): unparseable move at index \(index): \(uci)")
+                    break
+                }
+                guard let piece = board.piece(at: move.from) else {
+                    XCTFail("\(puzzle.id): no piece at \(uci) (move \(index))")
+                    break
+                }
+                guard piece.color == board.sideToMove else {
+                    XCTFail("\(puzzle.id): move \(index) (\(uci)) moves a \(piece.color) piece, but it's \(board.sideToMove)'s turn")
+                    break
+                }
+                board.apply(move)
             }
         }
     }

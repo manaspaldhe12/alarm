@@ -6,6 +6,7 @@ struct AppDependencyContainer {
     let missionCoordinator: MissionCoordinator
     let qrCodeRepository: QRCodeRepository
     let stepCounter: StepCounter
+    let puzzleLibrary: BundledPuzzleRepository
 
     static func make() -> AppDependencyContainer {
         let repository = FileAlarmRepository()
@@ -48,7 +49,8 @@ struct AppDependencyContainer {
             alarmCoordinator: coordinator,
             missionCoordinator: missionCoordinator,
             qrCodeRepository: qrCodeRepository,
-            stepCounter: stepCounter
+            stepCounter: stepCounter,
+            puzzleLibrary: puzzleRepository
         )
     }
 }

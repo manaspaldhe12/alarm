@@ -75,4 +75,73 @@ final class RepositoryTests: XCTestCase {
         let reloaded = await WakeUpCheckStateStore(fileURL: url).load()
         XCTAssertEqual(reloaded[checkID], alarmID, "mapping should survive being reloaded from a fresh store instance")
     }
+
+    private func makePuzzle(_ id: String, rating: Int = 1000) -> Puzzle {
+        Puzzle(id: id, rating: rating, fen: "8/8/8/8/8/8/8/K6k w - - 0 1", sideToMove: .white, solution: ["a1a2"])
+    }
+
+    func testFetchedPuzzleStoreMergeDedupesById() async {
+        let url = tempFileURL("fetched-puzzles")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let store = FetchedPuzzleStore(fileURL: url)
+
+        let addedFirst = await store.merge([makePuzzle("p1"), makePuzzle("p2")])
+        XCTAssertEqual(addedFirst, 2)
+
+        // Re-fetching the same batch (plus one genuinely new one) should only count the new one.
+        let addedSecond = await store.merge([makePuzzle("p1"), makePuzzle("p2"), makePuzzle("p3")])
+        XCTAssertEqual(addedSecond, 1, "re-merging already-stored ids should not be counted as new")
+
+        let all = await store.load()
+        XCTAssertEqual(Set(all.map(\.id)), ["p1", "p2", "p3"], "the store itself must not contain duplicates either")
+    }
+
+    func testFetchedPuzzleStorePersistsAcrossInstances() async {
+        let url = tempFileURL("fetched-puzzles-persist")
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        await FetchedPuzzleStore(fileURL: url).merge([makePuzzle("persisted")])
+
+        let reloaded = await FetchedPuzzleStore(fileURL: url).load()
+        XCTAssertEqual(reloaded.map(\.id), ["persisted"])
+    }
+
+    func testBundledPuzzleRepositoryFetchMorePuzzlesAddsToPool() async throws {
+        let fetchedStoreURL = tempFileURL("fetched-for-repo")
+        defer { try? FileManager.default.removeItem(at: fetchedStoreURL) }
+        let fetcher = FakeRemotePuzzleFetcher()
+        fetcher.puzzlesToReturn = [makePuzzle("remote1", rating: 1500), makePuzzle("remote2", rating: 1500)]
+
+        let repository = BundledPuzzleRepository(
+            fetchedStore: FetchedPuzzleStore(fileURL: fetchedStoreURL),
+            remoteFetcher: fetcher
+        )
+
+        let countBefore = await repository.puzzleCount()
+        let added = try await repository.fetchMorePuzzles()
+        XCTAssertEqual(added, 2)
+        XCTAssertEqual(fetcher.fetchCount, 1)
+
+        let countAfter = await repository.puzzleCount()
+        XCTAssertEqual(countAfter, countBefore + 2, "fetched puzzles must add to, not replace, the bundled pool")
+
+        let matching = try await repository.puzzles(minRating: 1500, maxRating: 1500, count: 10)
+        XCTAssertEqual(Set(matching.map(\.id)), ["remote1", "remote2"], "puzzles() should draw from newly-fetched puzzles too, not just the bundled set")
+    }
+
+    func testBundledPuzzleRepositoryFetchMorePuzzlesPropagatesError() async {
+        let fetcher = FakeRemotePuzzleFetcher()
+        fetcher.errorToThrow = RemotePuzzleFetchError.badResponse(500)
+        let repository = BundledPuzzleRepository(
+            fetchedStore: FetchedPuzzleStore(fileURL: tempFileURL("fetched-error")),
+            remoteFetcher: fetcher
+        )
+
+        do {
+            _ = try await repository.fetchMorePuzzles()
+            XCTFail("expected the fetcher's error to propagate")
+        } catch {
+            XCTAssertTrue(error is RemotePuzzleFetchError)
+        }
+    }
 }

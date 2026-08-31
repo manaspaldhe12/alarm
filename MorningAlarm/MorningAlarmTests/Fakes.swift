@@ -183,6 +183,18 @@ final class FakePuzzleRepository: PuzzleRepository, @unchecked Sendable {
     }
 }
 
+final class FakeRemotePuzzleFetcher: RemotePuzzleFetcher, @unchecked Sendable {
+    var puzzlesToReturn: [Puzzle] = []
+    var errorToThrow: Error?
+    private(set) var fetchCount = 0
+
+    func fetchPuzzles() async throws -> [Puzzle] {
+        fetchCount += 1
+        if let errorToThrow { throw errorToThrow }
+        return puzzlesToReturn
+    }
+}
+
 func tempFileURL(_ name: String) -> URL {
     FileManager.default.temporaryDirectory.appendingPathComponent("\(name)-\(UUID().uuidString).json")
 }

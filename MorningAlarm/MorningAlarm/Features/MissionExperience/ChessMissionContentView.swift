@@ -22,6 +22,19 @@ struct ChessMissionContentView: View {
                 .padding(.horizontal, 24)
 
             if let board {
+                Text("\(board.sideToMove == .white ? "White" : "Black") to move")
+                    .font(.headline)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 6)
+                    .background(
+                        board.sideToMove == .white ? Color.white : Color.black,
+                        in: Capsule()
+                    )
+                    .foregroundStyle(board.sideToMove == .white ? .black : .white)
+                    .overlay(Capsule().strokeBorder(.secondary.opacity(0.3)))
+            }
+
+            if let board {
                 ChessBoardView(board: board, selectedSquare: selectedSquare, onTapSquare: handleTap)
                     .frame(width: 300, height: 300)
                     .disabled(isLocked)

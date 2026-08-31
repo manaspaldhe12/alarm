@@ -90,6 +90,9 @@
 		BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */; };
 		BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */; };
 		BLF0000000000000000000083 /* MissionInsuranceStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */; };
+		BLF0000000000000000000084 /* RemotePuzzleFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000085 /* RemotePuzzleFetcher.swift */; };
+		BLF0000000000000000000085 /* FetchedPuzzleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000086 /* FetchedPuzzleStore.swift */; };
+		BLF0000000000000000000086 /* PuzzleLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FRF0000000000000000000087 /* PuzzleLibraryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,6 +214,9 @@
 		FRF0000000000000000000082 /* InsuranceDiagnosticsLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsLog.swift; sourceTree = "<group>"; };
 		FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsuranceDiagnosticsView.swift; sourceTree = "<group>"; };
 		FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissionInsuranceStateStore.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000085 /* RemotePuzzleFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemotePuzzleFetcher.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000086 /* FetchedPuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedPuzzleStore.swift; sourceTree = "<group>"; };
+		FRF0000000000000000000087 /* PuzzleLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleLibraryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -377,6 +383,7 @@
 				GRP0000000000000000000016 /* WakeUpCheck */,
 							GRP0000000000000000000038 /* TestMissions */,
 				GRP0000000000000000000040 /* Diagnostics */,
+				GRP0000000000000000000041 /* PuzzleLibrary */,
 );
 			path = Features;
 			sourceTree = "<group>";
@@ -481,7 +488,8 @@
 			children = (
 				FRF0000000000000000000049 /* ChessEngine.swift */,
 				FRF0000000000000000000050 /* PuzzleRepository.swift */,
-			);
+							FRF0000000000000000000085 /* RemotePuzzleFetcher.swift */,
+);
 			path = Chess;
 			sourceTree = "<group>";
 		};
@@ -511,6 +519,7 @@
 				FRF0000000000000000000057 /* QRCodeRepository.swift */,
 				FRF0000000000000000000058 /* WakeUpCheckStateStore.swift */,
 							FRF0000000000000000000084 /* MissionInsuranceStateStore.swift */,
+				FRF0000000000000000000086 /* FetchedPuzzleStore.swift */,
 );
 			path = Persistence;
 			sourceTree = "<group>";
@@ -641,6 +650,14 @@
 							FRF0000000000000000000083 /* InsuranceDiagnosticsView.swift */,
 );
 			path = Diagnostics;
+			sourceTree = "<group>";
+		};
+		GRP0000000000000000000041 /* PuzzleLibrary */ = {
+			isa = PBXGroup;
+			children = (
+							FRF0000000000000000000087 /* PuzzleLibraryView.swift */,
+);
+			path = PuzzleLibrary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -839,6 +856,9 @@
 				BLF0000000000000000000081 /* InsuranceDiagnosticsLog.swift in Sources */,
 				BLF0000000000000000000082 /* InsuranceDiagnosticsView.swift in Sources */,
 				BLF0000000000000000000083 /* MissionInsuranceStateStore.swift in Sources */,
+				BLF0000000000000000000084 /* RemotePuzzleFetcher.swift in Sources */,
+				BLF0000000000000000000085 /* FetchedPuzzleStore.swift in Sources */,
+				BLF0000000000000000000086 /* PuzzleLibraryView.swift in Sources */,
 );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
